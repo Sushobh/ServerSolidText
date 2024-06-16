@@ -9,7 +9,7 @@ plugins {
 
 group = 'com.sushobh'
 version = '0.0.1-SNAPSHOT'
-ext.coroutinesVersion = "1.9.0-RC"
+ext.coroutinesVersion = "1.8.0"
 java {
 	sourceCompatibility = '17'
 }
