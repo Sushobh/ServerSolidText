@@ -8,6 +8,9 @@ class SolidTextApplicationTests {
 
 	@Test
 	fun contextLoads() {
+
+
+
 	}
 
 }

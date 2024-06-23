@@ -1,4 +1,4 @@
-package com.sushobh.solidtext
+package com.sushobh.solidtext.controller
 
 import com.sushobh.solidtext.entity.AppConfig
 import org.springframework.web.bind.annotation.GetMapping
@@ -9,7 +9,7 @@ class ConfigController {
 
 
     @GetMapping("/config")
-    fun getConfig() : AppConfig{
+    suspend fun getConfig() : AppConfig{
         return AppConfig()
     }
 

@@ -1,8 +1,15 @@
 package com.sushobh.solidtext.entity
 
-class AppConfig {
+import com.fasterxml.jackson.annotation.JsonProperty
 
-    val BASE_URL = "http://10.0.2.2:8080"
-    val LOGIN_URL = BASE_URL+"/login"
 
-}
+
+const val BASE_URL = "http://10.0.2.2:8080"
+
+data class AppConfig (
+    @JsonProperty("LOGIN_URL") val loginUrl : String = BASE_URL+"/login"
+)
+
+
+
+

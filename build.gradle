@@ -33,6 +33,10 @@ dependencies {
 
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+
+
+	implementation project(':auth')
+	implementation project(':common')
 }
 
 tasks.withType(KotlinCompile) {
