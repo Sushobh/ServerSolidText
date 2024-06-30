@@ -1,5 +1,6 @@
 package com.sushobh.auth.entity
 
+import com.sushobh.common.util.entity.BaseTable
 import jakarta.persistence.*
 import java.math.BigInteger
 import java.time.OffsetDateTime
@@ -7,20 +8,18 @@ import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "signup_attempt")
-class SignupAttempt {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "signup_attempt_id_seq")
-    @SequenceGenerator(name = "signup_attempt_id_seq", sequenceName = "signup_attempt_id_seq", allocationSize = 1 )
-    lateinit var id : BigInteger
-
-    @Column(name = "time")
-    lateinit var time: OffsetDateTime
+class SignupAttempt() : BaseTable(){
 
     @Column(name = "email")
-    lateinit var email : String
+    private lateinit var email : String
+
+    constructor(email: String, password: String,time : OffsetDateTime) : this() {
+        this.time = time
+        this.email = email
+        this.password = password
+    }
 
     @Column(name = "pwd")
-    lateinit var password : String
+    protected lateinit var password : String
 
 }
