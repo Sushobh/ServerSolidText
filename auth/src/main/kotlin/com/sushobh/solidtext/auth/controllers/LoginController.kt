@@ -1,8 +1,6 @@
-package com.sushobh.auth.controllers
+package com.sushobh.solidtext.auth.controllers
 
-import com.sushobh.auth.entity.SignupAttempt
-import com.sushobh.auth.repository.SignupAttemptRepo
-import com.sushobh.auth.util.OtpGenerator
+import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
 import com.sushobh.common.util.DateUtil
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-class LoginController(val signupAttemptRepo: SignupAttemptRepo, val dateUtil: DateUtil,val otpGenerator: OtpGenerator) {
+class LoginController(val signupAttemptRepo: SignupAttemptRepo, val dateUtil: DateUtil) {
     data class LoginApiResponse(
             val token: String?,
             val isSuccessful: Boolean,

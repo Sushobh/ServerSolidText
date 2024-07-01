@@ -1,4 +1,4 @@
-package com.sushobh.auth
+package com.sushobh.solidtext.auth
 
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authorization.AuthorizationDecision
