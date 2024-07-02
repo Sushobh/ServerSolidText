@@ -12,13 +12,18 @@ class SignupController(val userService: UserService
 ) {
 
     data class SignupResponse(val signupStatus: UserService.SignupStatus)
-
-
+    data class OtpValidateResponse(val status: UserService.OtpValidateStatus)
 
     @PostMapping("/public/signup")
     suspend fun signup(@RequestBody signupInput: UserService.SignupInput) : SignupResponse {
         val result = userService.onSignupAttempt(signupInput)
         return SignupResponse(result)
+    }
+
+    @PostMapping("/public/otpValidate")
+    suspend fun otpValidate(@RequestBody body : UserService.OtpValidateInput): OtpValidateResponse {
+        val result = userService.validateOtp(body)
+        return OtpValidateResponse(result)
     }
 
 }
