@@ -11,7 +11,8 @@ import java.time.OffsetDateTime
 class ETSignupAttempt() : BaseTable() {
 
     @Column(name = "email")
-    private lateinit var email: String
+    lateinit var email: String
+        private set
 
     constructor(email: String, password: String, time: OffsetDateTime, otp_id: BigInteger? = null) : this() {
         this.time = time

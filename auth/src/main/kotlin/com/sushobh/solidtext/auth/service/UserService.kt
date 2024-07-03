@@ -5,6 +5,10 @@ import com.sushobh.solidtext.auth.entity.ETSignupAttempt
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
 import com.sushobh.common.util.DateUtil
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
+import com.sushobh.solidtext.auth.entity.ETPassword
+import com.sushobh.solidtext.auth.entity.ETUser
+import com.sushobh.solidtext.auth.repository.ETPasswordRepo
+import com.sushobh.solidtext.auth.repository.ETUserRepo
 import common.util.time.SecondsExpirable
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -12,7 +16,11 @@ import java.time.temporal.ChronoUnit
 
 
 @Component
-class UserService(val signupAttemptRepo: SignupAttemptRepo, val otpService: OtpService, val dateUtil: DateUtil) {
+class UserService(val signupAttemptRepo: SignupAttemptRepo,
+                  val etPasswordRepo: ETPasswordRepo,
+                  val etUserRepo: ETUserRepo,
+                  val otpService: OtpService,
+                  val dateUtil: DateUtil) {
 
     sealed class SignupStatus(val text : String) {
         data object TooManyRequestsForEmail : SignupStatus("TooManyRequestsForEmail")
@@ -60,7 +68,12 @@ class UserService(val signupAttemptRepo: SignupAttemptRepo, val otpService: OtpS
             latestAttempt.otpId?.let {
                val sentOtp = otpService.getOtp(it)
                sentOtp?.let {
+                   val time = dateUtil.getCurrentTime()
                    if(otpValidateInput.otpText == sentOtp.otp){
+                       var etPassword = etPasswordRepo.save(ETPassword(time = time, passwordText = latestAttempt.password))
+                       val etUser = ETUser(time = time, username = latestAttempt.email.split("@")[0],
+                           passwordId = etPassword.id, email = latestAttempt.email)
+                       etUserRepo.save(etUser)
                        return OtpValidateStatus.UserCreated
                    }
                }
