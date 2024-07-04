@@ -11,16 +11,15 @@ import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import common.util.time.SecondsExpirable
 import org.springframework.stereotype.Component
-import java.time.Duration
-import java.time.temporal.ChronoUnit
+
 
 
 @Component
-class UserService(val signupAttemptRepo: SignupAttemptRepo,
-                  val etPasswordRepo: ETPasswordRepo,
-                  val etUserRepo: ETUserRepo,
-                  val otpService: OtpService,
-                  val dateUtil: DateUtil) {
+class UserService(private val signupAttemptRepo: SignupAttemptRepo,
+                  private val etPasswordRepo: ETPasswordRepo,
+                  private val etUserRepo: ETUserRepo,
+                  private val otpService: OtpService,
+                  private val dateUtil: DateUtil) {
 
     sealed class SignupStatus(val text : String) {
         data object TooManyRequestsForEmail : SignupStatus("TooManyRequestsForEmail")
@@ -39,8 +38,7 @@ class UserService(val signupAttemptRepo: SignupAttemptRepo,
     data class OtpValidateInput(val otpText : String,val email : String)
 
     private fun doesUserExist(email : String) : Boolean {
-        //TODO implementation
-        return false
+        return etUserRepo.findByEmail(email) != null
     }
 
     fun onSignupAttempt(input: SignupInput) : SignupStatus {
@@ -59,7 +57,6 @@ class UserService(val signupAttemptRepo: SignupAttemptRepo,
 
     fun validateOtp(otpValidateInput: OtpValidateInput) : OtpValidateStatus {
         val latestAttempt = signupAttemptRepo.findLatestByEmail(otpValidateInput.email)
-
         latestAttempt?.let {
             val hasExpired = dateUtil.hasExpired(SecondsExpirable(latestAttempt.time, SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS))
             if(hasExpired){
@@ -70,7 +67,7 @@ class UserService(val signupAttemptRepo: SignupAttemptRepo,
                sentOtp?.let {
                    val time = dateUtil.getCurrentTime()
                    if(otpValidateInput.otpText == sentOtp.otp){
-                       var etPassword = etPasswordRepo.save(ETPassword(time = time, passwordText = latestAttempt.password))
+                       val etPassword = etPasswordRepo.save(ETPassword(time = time, passwordText = latestAttempt.password))
                        val etUser = ETUser(time = time, username = latestAttempt.email.split("@")[0],
                            passwordId = etPassword.id, email = latestAttempt.email)
                        etUserRepo.save(etUser)

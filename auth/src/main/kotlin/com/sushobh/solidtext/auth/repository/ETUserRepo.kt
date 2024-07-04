@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository
 import java.math.BigInteger
 
 interface ETUserRepo : CrudRepository<ETUser,BigInteger> {
+    fun findByEmail(email : String) : ETUser?
 }
