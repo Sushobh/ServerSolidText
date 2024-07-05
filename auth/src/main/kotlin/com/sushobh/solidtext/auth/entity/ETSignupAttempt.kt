@@ -6,6 +6,7 @@ import java.math.BigInteger
 import java.time.OffsetDateTime
 
 
+
 @Entity
 @Table(name = "signup_attempt")
 class ETSignupAttempt() : BaseTable() {

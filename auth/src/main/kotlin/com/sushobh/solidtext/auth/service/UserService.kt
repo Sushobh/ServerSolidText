@@ -1,17 +1,17 @@
 package com.sushobh.solidtext.auth.service
 
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
-import com.sushobh.solidtext.auth.entity.ETSignupAttempt
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
 import com.sushobh.common.util.DateUtil
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
-import com.sushobh.solidtext.auth.entity.ETPassword
-import com.sushobh.solidtext.auth.entity.ETUser
+import com.sushobh.solidtext.auth.entity.*
 import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
+import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import common.util.time.SecondsExpirable
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
-
+import kotlin.jvm.optionals.getOrNull
 
 
 @Component
@@ -19,22 +19,30 @@ class UserService(private val signupAttemptRepo: SignupAttemptRepo,
                   private val etPasswordRepo: ETPasswordRepo,
                   private val etUserRepo: ETUserRepo,
                   private val otpService: OtpService,
-                  private val dateUtil: DateUtil) {
+                  private val dateUtil: DateUtil,
+                  private val passwordEncoder : BCryptPasswordEncoder,
+                  private val tokenService : TokenService,
+                  private val tokenPairRepo: ETUserTokenPairRepo
+    ) {
 
     sealed class SignupStatus(val text : String) {
         data object TooManyRequestsForEmail : SignupStatus("TooManyRequestsForEmail")
         data object OtpSent : SignupStatus("OtpSent")
         data object UserAlreadyExists  : SignupStatus("UserAlreadyExists")
     }
-
     sealed class OtpValidateStatus(val text : String) {
        data object UserCreated : OtpValidateStatus("UserCreated")
        data object ExpiredRequest : OtpValidateStatus("ExpiredRequest")
        data object InvalidDetails : OtpValidateStatus("InvalidDetails")
     }
 
-    data class SignupInput(val email : String,val password: String)
+    sealed class LoginStatus(){
+        data object InvalidCredentials : LoginStatus()
+        data class Success(val tokenText : String) : LoginStatus()
+    }
 
+    data class LoginInput(val email : String,val password: String)
+    data class SignupInput(val email : String,val password: String)
     data class OtpValidateInput(val otpText : String,val email : String)
 
     private fun doesUserExist(email : String) : Boolean {
@@ -49,7 +57,7 @@ class UserService(private val signupAttemptRepo: SignupAttemptRepo,
         else {
             val sentOtp = otpService.sendOtp(OTP_TYPE_SIGNUP)
             val signupAttempt =
-                ETSignupAttempt(input.email,input.password,dateUtil.getCurrentTime(),sentOtp.id)
+                ETSignupAttempt(input.email,passwordEncoder.encode(input.password),dateUtil.getCurrentTime(),sentOtp.id)
             signupAttemptRepo.save(signupAttempt)
             return SignupStatus.OtpSent
         }
@@ -77,5 +85,20 @@ class UserService(private val signupAttemptRepo: SignupAttemptRepo,
             }
         }
         return OtpValidateStatus.InvalidDetails
+    }
+
+    fun login(loginInput: LoginInput) : LoginStatus {
+        val etUser  = etUserRepo.findByEmail(loginInput.email)
+        etUser?.let {
+            val etPassword = etPasswordRepo.findById(etUser.passwordId).getOrNull()
+            etPassword?.let {
+                 if(passwordEncoder.matches(loginInput.password,etPassword.passwordText)){
+                     val token = tokenService.generateLoginToken()
+                     tokenPairRepo.save(ETUserTokenPair(ETUserTokenPairId(etUser.id,token.id)))
+                     return LoginStatus.Success(token.tokenText)
+                 }
+            }
+        }
+        return LoginStatus.InvalidCredentials
     }
 }

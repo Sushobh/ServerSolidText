@@ -1,9 +1,11 @@
 package com.sushobh.solidtext.auth
 
+import org.springframework.context.annotation.Bean
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.core.Authentication
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.stereotype.Component
 import java.util.function.Supplier
@@ -17,5 +19,6 @@ class MyAuthManager : AuthorizationManager<RequestAuthorizationContext> {
     ): AuthorizationDecision {
        return AuthorizationDecision(true)
     }
-
 }
+
+
