@@ -10,9 +10,6 @@ import org.springframework.security.web.SecurityFilterChain
 
 
 @EnableWebSecurity
-
-
-
 @Configuration
 class SecurityConfiguration {
 
@@ -28,6 +25,4 @@ class SecurityConfiguration {
         }
         return http.build()
     }
-
-
 }
