@@ -1,5 +1,6 @@
 package com.sushobh.solidtext.auth.controllers
 
+import com.sushobh.solidtext.auth.AUTH_HEADER
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.entity.ETUser
 import com.sushobh.solidtext.auth.service.TokenService
@@ -71,13 +72,13 @@ class SignupController(
             }.next()
     }
 
-    @GetMapping("/user")
-    suspend fun getUserInfo(
+    @PostMapping("/user/updateUserName")
+    suspend fun updateUserName(@RequestBody body : UserService.UpdateUserNameInput,
         @RequestHeader headers: Map<String, String>
-    ): STResponse<ETUser> {
-        return getUserRequestChain<Any, ETUser>(null, headers)
+    ): STResponse<UserService.UpdateUserNameStatus> {
+        return getUserRequestChain<UserService.UpdateUserNameInput, UserService.UpdateUserNameStatus>(null, headers)
             .addItem { input, _ ->
-                STResponse(input.getExtra(EXTRA_USER), null)
+                STResponse(userService.updateUserName(body,input.getExtra<ETUser>(EXTRA_USER).id), null)
             }.next()
     }
 

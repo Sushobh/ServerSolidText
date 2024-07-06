@@ -8,10 +8,12 @@ import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
+import com.sushobh.solidtext.auth.response.RespUser
 import common.util.time.SecondsExpirable
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
+import java.math.BigInteger
 import kotlin.jvm.optionals.getOrNull
 
 
@@ -27,6 +29,8 @@ class UserService(
     private val tokenPairRepo: ETUserTokenPairRepo,
     @Qualifier("loginTokenConfig") private val loginTokenConfig: TokenService.TokenConfig
 ) {
+
+
 
     sealed class SignupStatus(val text: String) {
         data object TooManyRequestsForEmail : SignupStatus("TooManyRequestsForEmail")
@@ -45,9 +49,18 @@ class UserService(
         data class Success(val tokenText: String) : LoginStatus()
     }
 
+    sealed class UpdateUserNameStatus {
+        data class Success(val respUser: RespUser) : UpdateUserNameStatus()
+        data object Failed : UpdateUserNameStatus()
+    }
+
+
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String, val email: String)
+    data class UpdateUserNameInput(val newName : String)
+
+
 
     private fun doesUserExist(email: String): Boolean {
         return etUserRepo.findByEmail(email) != null
@@ -121,5 +134,17 @@ class UserService(
         } catch (e: Exception) {
             return null
         }
+    }
+
+    fun updateUserName(updateUserNameInput: UpdateUserNameInput,userId : BigInteger) : UpdateUserNameStatus{
+        val etUser = etUserRepo.findById(userId).getOrNull()
+        etUser?.let {
+              etUserRepo.updateUserName(updateUserNameInput.newName,etUser.id)
+              val newUserRow = etUserRepo.findById(userId).getOrNull()
+              newUserRow?.let {
+                  return UpdateUserNameStatus.Success(RespUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
+              }
+        }
+        return UpdateUserNameStatus.Failed
     }
 }
