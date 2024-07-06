@@ -21,10 +21,10 @@ class ETToken() : BaseTable(){
     lateinit var expiryUnit: String
         private set
     @Column(name = "expires_in")
-    var expiresIn: Int = 0
+    var expiresIn: Long = 0
         private set
 
-    constructor(tokenText : String,tokenType : String,expiryUnit : String,expiresIn : Int,time : OffsetDateTime) : this(){
+    constructor(tokenText : String,tokenType : String,expiryUnit : String,expiresIn : Long,time : OffsetDateTime) : this(){
         this.tokenText = tokenText
         this.tokenType = tokenType
         this.expiryUnit = expiryUnit

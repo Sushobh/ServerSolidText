@@ -9,6 +9,7 @@ import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import common.util.time.SecondsExpirable
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import kotlin.jvm.optionals.getOrNull
@@ -22,7 +23,8 @@ class UserService(private val signupAttemptRepo: SignupAttemptRepo,
                   private val dateUtil: DateUtil,
                   private val passwordEncoder : BCryptPasswordEncoder,
                   private val tokenService : TokenService,
-                  private val tokenPairRepo: ETUserTokenPairRepo
+                  private val tokenPairRepo: ETUserTokenPairRepo,
+                  @Qualifier("loginTokenConfig") private val loginTokenConfig: TokenService.TokenConfig
     ) {
 
     sealed class SignupStatus(val text : String) {
@@ -93,12 +95,22 @@ class UserService(private val signupAttemptRepo: SignupAttemptRepo,
             val etPassword = etPasswordRepo.findById(etUser.passwordId).getOrNull()
             etPassword?.let {
                  if(passwordEncoder.matches(loginInput.password,etPassword.passwordText)){
-                     val token = tokenService.generateLoginToken()
+                     val token = tokenService.generateToken(loginTokenConfig)
                      tokenPairRepo.save(ETUserTokenPair(ETUserTokenPairId(etUser.id,token.id)))
                      return LoginStatus.Success(token.tokenText)
                  }
             }
         }
         return LoginStatus.InvalidCredentials
+    }
+
+    fun getUserFromToken(tokenText : String) : ETUser? {
+        try {
+            val token = tokenService.validateToken(tokenText)
+            val user = etUserRepo.findUserByToken(token.id)
+            return user
+        } catch (e: Exception) {
+            return null
+        }
     }
 }

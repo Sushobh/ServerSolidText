@@ -9,7 +9,7 @@ open class RequestChain<X,Y> (private val requestBody : STRequest<X>) {
         return this
     }
 
-    suspend fun next() : Y {
+    suspend fun next() : STResponse<Y> {
         items.getOrNull(currentIndex++)?.let {
             return it.processRequest(requestBody,this)
         }
@@ -26,5 +26,5 @@ open class RequestChain<X,Y> (private val requestBody : STRequest<X>) {
 
 
 fun interface ChainItem<X,Y> {
-    suspend fun processRequest(input : STRequest<X>,chain : RequestChain<X, Y>) : Y
+    suspend fun processRequest(input : STRequest<X>,chain : RequestChain<X, Y>) : STResponse<Y>
 }
