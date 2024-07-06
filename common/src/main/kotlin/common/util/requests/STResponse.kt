@@ -10,9 +10,6 @@ open class STResponse<X> {
         this.body = body
         this.error = error
     }
-
-
-
 }
 
 class STErrorBody(val message : String? = null,val status : String)

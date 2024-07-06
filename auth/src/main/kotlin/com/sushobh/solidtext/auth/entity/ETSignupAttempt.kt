@@ -1,10 +1,11 @@
 package com.sushobh.solidtext.auth.entity
 
 import com.sushobh.common.util.entity.BaseTable
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
 import java.math.BigInteger
 import java.time.OffsetDateTime
-
 
 
 @Entity

@@ -7,8 +7,8 @@ class PasswordTest {
     private val passwordEncoder = BCryptPasswordEncoder(16)
 
     @Test
-    fun justATest(){
+    fun justATest() {
         val encodedPassword = "\$2a\$16\$l0Uu2SCndZJ7bICPh3B37O6HBtyaMe/T3D1t41WqfJgUruxEpvwFm"
-        Assertions.assertTrue(passwordEncoder.matches("1234",encodedPassword))
+        Assertions.assertTrue(passwordEncoder.matches("1234", encodedPassword))
     }
 }

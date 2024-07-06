@@ -12,7 +12,7 @@ open class Configuration {
 
 
     @Bean
-    open fun passwordEncoder() : BCryptPasswordEncoder = BCryptPasswordEncoder(16)
+    open fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder(16)
 
     @Qualifier("loginTokenConfig")
     @Bean
