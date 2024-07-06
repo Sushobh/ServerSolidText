@@ -1,5 +1,6 @@
 package com.sushobh.solidtext.auth.controllers
 
+import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.entity.ETUser
 import com.sushobh.solidtext.auth.service.TokenService
 import com.sushobh.solidtext.auth.service.UserService
@@ -27,7 +28,6 @@ class SignupController(
     data class OtpValidateResponse(val status: UserService.OtpValidateStatus)
     data class LoginResponse(val status : UserService.LoginStatus)
 
-    open class WithUserInput (open val etUser : ETUser)
 
     private fun <X,Y>getDefaultRequestChain(body : X?,headers: Map<String, String> = hashMapOf()) : RequestChain<X,Y> {
         return RequestChain.new(STRequest(headers,body))
@@ -40,17 +40,15 @@ class SignupController(
 
 
     @PostMapping("/public/signup")
-    suspend fun signup(@RequestBody body: UserService.SignupInput,
-                       @RequestHeader headers : Map<String,String>): STResponse<SignupResponse> {
+    suspend fun signup(@RequestBody body: UserService.SignupInput): STResponse<SignupResponse> {
         return getDefaultRequestChain<UserService.SignupInput,SignupResponse>(body)
-            .addItem { input, chain -> STResponse(SignupResponse(userService.onSignupAttempt(input.requestBody!!))) }.next()
+            .addItem { input, chain -> STResponse(SignupResponse(userService.onSignupAttempt(input.requestBody!!)),null) }.next()
     }
 
     @PostMapping("/public/otpValidate")
-    suspend fun otpValidate(@RequestBody body: UserService.OtpValidateInput,
-                            @RequestHeader headers : Map<String,String>): STResponse<OtpValidateResponse> {
+    suspend fun otpValidate(@RequestBody body: UserService.OtpValidateInput): STResponse<OtpValidateResponse> {
         return getDefaultRequestChain<UserService.OtpValidateInput,OtpValidateResponse>(body)
-            .addItem { input, chain -> STResponse(OtpValidateResponse(userService.validateOtp(input.requestBody!!))) }.next()
+            .addItem { input, chain -> STResponse(OtpValidateResponse(userService.validateOtp(input.requestBody!!)),null) }.next()
 
     }
 
@@ -60,18 +58,18 @@ class SignupController(
         return getDefaultRequestChain<UserService.LoginInput,LoginResponse>(body,headers)
             .addItem { input, chain ->
                 val result = userService.login(body)
-                STResponse(LoginResponse(result))
+                STResponse(LoginResponse(result),null)
             }.next()
     }
 
     @GetMapping("/user")
-    suspend fun testUser(
-                      @RequestHeader headers : Map<String,String>) : STResponse<String> {
-        val resp =  getUserRequestChain<Any,String>(null,headers)
+    suspend fun getUserInfo(
+                      @RequestHeader headers : Map<String,String>) : STResponse<ETUser> {
+       return getUserRequestChain<Any,ETUser>(null,headers)
             .addItem { input, chain ->
-                STResponse("Good Job!")
+                STResponse(input.getExtra(EXTRA_USER),null)
             }.next()
-        return resp
+
     }
 
 }

@@ -19,6 +19,6 @@ class UserTokenChecker<X ,Y>(val tokenService: TokenService,val userService: Use
                  return chain.next()
              }
         }
-        return STResponse(STErrorBody(status = RESPONSE_STATUS_AUTH_INVALID))
+        return STResponse(null,STErrorBody(status = RESPONSE_STATUS_AUTH_INVALID))
     }
 }
