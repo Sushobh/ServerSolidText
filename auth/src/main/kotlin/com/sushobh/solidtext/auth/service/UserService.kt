@@ -1,5 +1,7 @@
 package com.sushobh.solidtext.auth.service
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.sushobh.common.util.DateUtil
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
@@ -31,34 +33,34 @@ class UserService(
 ) {
 
 
-
-    sealed class SignupStatus(val text: String) {
-        data object TooManyRequestsForEmail : SignupStatus("TooManyRequestsForEmail")
-        data object OtpSent : SignupStatus("OtpSent")
-        data object UserAlreadyExists : SignupStatus("UserAlreadyExists")
+    sealed class SignupStatus(val status : String?)  {
+        data object OtpSent : SignupStatus(OtpSent::class.simpleName)
+        data object UserAlreadyExists : SignupStatus(UserAlreadyExists::class.simpleName)
     }
 
-    sealed class OtpValidateStatus(val text: String) {
-        data object UserCreated : OtpValidateStatus("UserCreated")
-        data object ExpiredRequest : OtpValidateStatus("ExpiredRequest")
-        data object InvalidDetails : OtpValidateStatus("InvalidDetails")
+    sealed class OtpValidateStatus(val status: String?) {
+        data object UserCreated : OtpValidateStatus(UserCreated::class.simpleName)
+        data object ExpiredRequest : OtpValidateStatus(ExpiredRequest::class.simpleName)
+        data object InvalidDetails : OtpValidateStatus(InvalidDetails::class.simpleName)
     }
 
-    sealed class LoginStatus() {
-        data object InvalidCredentials : LoginStatus()
-        data class Success(val tokenText: String) : LoginStatus()
+    sealed class LoginStatus(val status : String?) {
+        data object InvalidCredentials : LoginStatus(InvalidCredentials::class.simpleName)
+        data class Success(val tokenText: String) : LoginStatus(Success::class.simpleName)
     }
 
-    sealed class UpdateUserNameStatus {
-        data class Success(val respUser: RespUser) : UpdateUserNameStatus()
-        data object Failed : UpdateUserNameStatus()
+    sealed class UpdateUserNameStatus(val status : String?) {
+        data class Success(val respUser: RespUser) : UpdateUserNameStatus(Success::class.simpleName)
+        data object Failed : UpdateUserNameStatus(Success::class.simpleName)
     }
+
 
 
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String, val email: String)
     data class UpdateUserNameInput(val newName : String)
+
 
 
 
@@ -147,4 +149,6 @@ class UserService(
         }
         return UpdateUserNameStatus.Failed
     }
+
+
 }

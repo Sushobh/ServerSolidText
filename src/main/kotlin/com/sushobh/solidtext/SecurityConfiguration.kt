@@ -20,6 +20,7 @@ class SecurityConfiguration {
             authorizeHttpRequests {
                 authorize("/public/**",permitAll)
                 authorize("/user/**",authenticated)
+                authorize("/posts/**",authenticated)
                 authorize("/**",myAuthManager)
             }
         }

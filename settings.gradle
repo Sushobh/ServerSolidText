@@ -4,4 +4,5 @@ plugins {
 rootProject.name = 'solidtext'
 include 'auth'
 include 'common'
+include 'posts'
 
