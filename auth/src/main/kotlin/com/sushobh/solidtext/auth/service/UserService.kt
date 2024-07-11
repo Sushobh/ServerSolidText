@@ -18,7 +18,7 @@ import kotlin.jvm.optionals.getOrNull
 
 
 @Component
-class UserService internal constructor(
+internal class UserService internal constructor(
     private val signupAttemptRepo: SignupAttemptRepo,
     private val etPasswordRepo: ETPasswordRepo,
     private val etUserRepo: ETUserRepo,

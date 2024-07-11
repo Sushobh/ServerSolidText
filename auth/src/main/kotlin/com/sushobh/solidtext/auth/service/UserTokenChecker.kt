@@ -8,7 +8,7 @@ import common.util.requests.*
 import org.springframework.stereotype.Component
 
 @Component
-class UserTokenChecker<X, Y>(val userService: UserService) : ChainItem<X, Y> {
+internal class UserTokenChecker<X, Y>(val userService: UserService) : ChainItem<X, Y> {
 
     override suspend fun processRequest(input: STRequest<X>, chain: RequestChain<X, Y>): STResponse<Y> {
         val tokenText = input.getHeader(AUTH_HEADER.lowercase())
