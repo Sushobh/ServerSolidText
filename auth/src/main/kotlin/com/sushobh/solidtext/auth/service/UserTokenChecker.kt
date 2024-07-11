@@ -3,6 +3,7 @@ package com.sushobh.solidtext.auth.service
 import com.sushobh.solidtext.auth.AUTH_HEADER
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.RESPONSE_STATUS_AUTH_INVALID
+import com.sushobh.solidtext.auth.api.STUser
 import common.util.requests.*
 import org.springframework.stereotype.Component
 
@@ -14,7 +15,7 @@ class UserTokenChecker<X, Y>(val userService: UserService) : ChainItem<X, Y> {
         tokenText?.let {
             val user = userService.getUserFromToken(tokenText)
             user?.let {
-                input.addExtra(EXTRA_USER, user)
+                input.addExtra(EXTRA_USER, STUser(userId = user.id))
                 return chain.next()
             }
         }

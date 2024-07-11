@@ -9,14 +9,14 @@ import kotlin.random.Random
 
 
 @Component
-class OtpService(val dateUtil: DateUtil, val otpRepo: OtpRepo) {
+class OtpService internal constructor(val dateUtil: DateUtil,private val otpRepo: OtpRepo) {
 
 
-    fun getOtp(id: BigInteger): ETOtp? {
+     internal fun getOtp(id: BigInteger): ETOtp? {
         return otpRepo.findById(id).orElse(null)
     }
 
-    fun sendOtp(type: String): ETOtp {
+    internal fun sendOtp(type: String): ETOtp {
         val otpText = generateOtpString()
         var etOtp = ETOtp(type, otpText, dateUtil.getCurrentTime())
         etOtp = otpRepo.save(etOtp)

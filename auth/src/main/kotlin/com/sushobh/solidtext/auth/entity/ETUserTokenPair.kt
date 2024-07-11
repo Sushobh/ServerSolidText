@@ -6,7 +6,7 @@ import java.math.BigInteger
 
 @Entity
 @Table(name = "user_token_pair")
-class ETUserTokenPair() {
+internal class ETUserTokenPair() {
 
     constructor(etUserTokenPairId: ETUserTokenPairId) : this() {
         this.id = etUserTokenPairId

@@ -4,6 +4,6 @@ import com.sushobh.solidtext.auth.entity.ETUserTokenPair
 import com.sushobh.solidtext.auth.entity.ETUserTokenPairId
 import org.springframework.data.repository.CrudRepository
 
-interface ETUserTokenPairRepo : CrudRepository<ETUserTokenPair, ETUserTokenPairId> {
+internal interface ETUserTokenPairRepo : CrudRepository<ETUserTokenPair, ETUserTokenPairId> {
 
 }

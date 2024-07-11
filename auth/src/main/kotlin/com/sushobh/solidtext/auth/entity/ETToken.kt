@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "token")
-class ETToken() : BaseTable() {
+internal class ETToken() : BaseTable() {
 
     @Column(name = "token_text")
     lateinit var tokenText: String

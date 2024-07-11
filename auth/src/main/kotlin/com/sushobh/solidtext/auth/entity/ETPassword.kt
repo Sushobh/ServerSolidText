@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "password")
-class ETPassword() : BaseTable() {
+internal class ETPassword() : BaseTable() {
 
     @Column(name = "password_text")
     lateinit var passwordText: String

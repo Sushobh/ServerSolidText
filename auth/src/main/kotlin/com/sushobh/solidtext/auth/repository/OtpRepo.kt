@@ -4,6 +4,6 @@ import com.sushobh.solidtext.auth.entity.ETOtp
 import org.springframework.data.repository.CrudRepository
 import java.math.BigInteger
 
-interface OtpRepo : CrudRepository<ETOtp, BigInteger> {
+internal interface OtpRepo : CrudRepository<ETOtp, BigInteger> {
 
 }

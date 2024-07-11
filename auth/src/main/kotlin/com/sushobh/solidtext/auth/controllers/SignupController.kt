@@ -1,21 +1,17 @@
 package com.sushobh.solidtext.auth.controllers
 
-import com.sushobh.solidtext.auth.AUTH_HEADER
 import com.sushobh.solidtext.auth.EXTRA_USER
-import com.sushobh.solidtext.auth.entity.ETUser
+import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.auth.getDefaultRequestChain
 import com.sushobh.solidtext.auth.getUserRequestChain
 import com.sushobh.solidtext.auth.service.TokenService
 import com.sushobh.solidtext.auth.service.UserService
-import com.sushobh.solidtext.auth.service.UserTokenChecker
-import common.util.requests.RequestChain
-import common.util.requests.STRequest
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.*
 
 
 @RestController
-class SignupController(
+internal class SignupController(
     private val userService: UserService,
     private val tokenService: TokenService
 ) {
@@ -44,7 +40,6 @@ class SignupController(
                     null
                 )
             }.next()
-
     }
 
     @PostMapping("/public/login")
@@ -65,7 +60,7 @@ class SignupController(
     ): STResponse<UserService.UpdateUserNameStatus> {
         return getUserRequestChain<UserService.UpdateUserNameInput, UserService.UpdateUserNameStatus>(userService,null, headers)
             .addItem { input, _ ->
-                STResponse(userService.updateUserName(body,input.getExtra<ETUser>(EXTRA_USER).id), null)
+                STResponse(userService.updateUserName(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
 

@@ -1,10 +1,9 @@
 package com.sushobh.solidtext.auth.service
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.sushobh.common.util.DateUtil
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
+import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.auth.entity.*
 import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
@@ -15,12 +14,11 @@ import common.util.time.SecondsExpirable
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
-import java.math.BigInteger
 import kotlin.jvm.optionals.getOrNull
 
 
 @Component
-class UserService(
+class UserService internal constructor(
     private val signupAttemptRepo: SignupAttemptRepo,
     private val etPasswordRepo: ETPasswordRepo,
     private val etUserRepo: ETUserRepo,
@@ -128,7 +126,7 @@ class UserService(
         return LoginStatus.InvalidCredentials
     }
 
-    fun getUserFromToken(tokenText: String): ETUser? {
+    internal fun getUserFromToken(tokenText: String): ETUser? {
         try {
             val token = tokenService.validateToken(tokenText)
             val user = etUserRepo.findUserByToken(token.id)
@@ -138,11 +136,11 @@ class UserService(
         }
     }
 
-    fun updateUserName(updateUserNameInput: UpdateUserNameInput,userId : BigInteger) : UpdateUserNameStatus{
-        val etUser = etUserRepo.findById(userId).getOrNull()
+    fun updateUserName(updateUserNameInput: UpdateUserNameInput, user: STUser) : UpdateUserNameStatus{
+        val etUser = etUserRepo.findById(user.userId).getOrNull()
         etUser?.let {
               etUserRepo.updateUserName(updateUserNameInput.newName,etUser.id)
-              val newUserRow = etUserRepo.findById(userId).getOrNull()
+              val newUserRow = etUserRepo.findById(user.userId).getOrNull()
               newUserRow?.let {
                   return UpdateUserNameStatus.Success(RespUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
               }

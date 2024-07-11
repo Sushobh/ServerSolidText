@@ -1,7 +1,8 @@
 package com.sushobh.solidtext.posts.controllers
 
 import com.sushobh.solidtext.auth.EXTRA_USER
-import com.sushobh.solidtext.auth.entity.ETUser
+import com.sushobh.solidtext.auth.api.STUser
+
 import com.sushobh.solidtext.auth.getUserRequestChain
 import com.sushobh.solidtext.auth.service.UserService
 import com.sushobh.solidtext.posts.PostsService
@@ -21,7 +22,7 @@ class PostsController(private val userService : UserService,private val postsSer
     ): STResponse<PostsService.CreatePostStatus> {
         return getUserRequestChain<PostsService.CreatePostInput, PostsService.CreatePostStatus>(userService,null, headers)
             .addItem { input, _ ->
-                STResponse(postsService.createPost(body,input.getExtra<ETUser>(EXTRA_USER).id), null)
+                STResponse(postsService.createPost(body,input.getExtra<STUser>(EXTRA_USER)), null)
             }.next()
     }
 }

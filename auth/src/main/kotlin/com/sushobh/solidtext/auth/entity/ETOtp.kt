@@ -9,7 +9,7 @@ import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "otp")
-class ETOtp() : BaseTable() {
+internal class ETOtp() : BaseTable() {
 
     constructor(type: String, otp: String, time: OffsetDateTime) : this() {
         this.type = type

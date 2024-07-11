@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Component
-class TokenService(private val tokenRepo: ETTokenRepo, private val dateUtil: DateUtil) {
+class TokenService internal constructor(private val tokenRepo: ETTokenRepo, private val dateUtil: DateUtil) {
 
     class TokenConfig(val name: String, val expiresIn: Long, val expiryUnit: ChronoUnit)
 
@@ -23,7 +23,7 @@ class TokenService(private val tokenRepo: ETTokenRepo, private val dateUtil: Dat
         return builder.toString()
     }
 
-    fun generateToken(tokenConfig: TokenConfig): ETToken {
+    internal fun generateToken(tokenConfig: TokenConfig): ETToken {
         val etToken = ETToken(
             tokenText = generateRandomText(),
             tokenType = tokenConfig.name,
@@ -34,7 +34,7 @@ class TokenService(private val tokenRepo: ETTokenRepo, private val dateUtil: Dat
         return tokenRepo.save(etToken)
     }
 
-    fun validateToken(tokenText: String): ETToken {
+   internal fun validateToken(tokenText: String): ETToken {
         val exception = Exception("Invalid Token Text")
         val token = tokenRepo.findByTokenText(tokenText)
         token?.let {

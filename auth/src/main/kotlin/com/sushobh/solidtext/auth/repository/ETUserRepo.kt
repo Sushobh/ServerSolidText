@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 
-interface ETUserRepo : CrudRepository<ETUser, BigInteger> {
+internal interface ETUserRepo : CrudRepository<ETUser, BigInteger> {
     fun findByEmail(email: String): ETUser?
 
     @Query(

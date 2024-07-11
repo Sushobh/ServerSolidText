@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 
 @Entity
 @Table(name = "signup_attempt")
-class ETSignupAttempt() : BaseTable() {
+internal class ETSignupAttempt() : BaseTable() {
 
     @Column(name = "email")
     lateinit var email: String
