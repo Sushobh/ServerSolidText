@@ -9,7 +9,7 @@ import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
-import com.sushobh.solidtext.auth.response.RespUser
+import com.sushobh.solidtext.auth.response.RespETUser
 import common.util.time.SecondsExpirable
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -32,8 +32,9 @@ internal class UserService internal constructor(
 
 
     sealed class SignupStatus(val status : String?)  {
-        data object OtpSent : SignupStatus(OtpSent::class.simpleName)
+        data class OtpSent(val stringId : String) : SignupStatus(OtpSent::class.simpleName)
         data object UserAlreadyExists : SignupStatus(UserAlreadyExists::class.simpleName)
+        data object Error : SignupStatus(kotlin.Error::class.simpleName)
     }
 
     sealed class OtpValidateStatus(val status: String?) {
@@ -48,7 +49,7 @@ internal class UserService internal constructor(
     }
 
     sealed class UpdateUserNameStatus(val status : String?) {
-        data class Success(val respUser: RespUser) : UpdateUserNameStatus(Success::class.simpleName)
+        data class Success(val respUser: RespETUser) : UpdateUserNameStatus(Success::class.simpleName)
         data object Failed : UpdateUserNameStatus(Success::class.simpleName)
     }
 
@@ -72,15 +73,18 @@ internal class UserService internal constructor(
             return SignupStatus.UserAlreadyExists
         } else {
             val sentOtp = otpService.sendOtp(OTP_TYPE_SIGNUP)
-            val signupAttempt =
-                ETSignupAttempt(
-                    input.email,
-                    passwordEncoder.encode(input.password),
-                    dateUtil.getCurrentTime(),
-                    sentOtp.id
-                )
-            signupAttemptRepo.save(signupAttempt)
-            return SignupStatus.OtpSent
+            sentOtp?.let {
+                val signupAttempt =
+                    ETSignupAttempt(
+                        input.email,
+                        passwordEncoder.encode(input.password),
+                        dateUtil.getCurrentTime(),
+                        sentOtp.id
+                    )
+                signupAttemptRepo.save(signupAttempt)
+                return SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
+            }
+            return SignupStatus.Error
         }
     }
 
@@ -142,7 +146,7 @@ internal class UserService internal constructor(
               etUserRepo.updateUserName(updateUserNameInput.newName,etUser.id)
               val newUserRow = etUserRepo.findById(user.userId).getOrNull()
               newUserRow?.let {
-                  return UpdateUserNameStatus.Success(RespUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
+                  return UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
               }
         }
         return UpdateUserNameStatus.Failed

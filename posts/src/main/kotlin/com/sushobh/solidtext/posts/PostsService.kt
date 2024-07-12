@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 @Service
 class PostsService(private val dateUtil: DateUtil,private val etPostRepository: ETPostRepository) {
 
-
     sealed class CreatePostStatus(val status : String?) {
          data object Success : CreatePostStatus(Success::class.simpleName)
          data class  Failed(val reason : String) : CreatePostStatus(Failed::class.simpleName)
@@ -18,7 +17,7 @@ class PostsService(private val dateUtil: DateUtil,private val etPostRepository: 
 
     data class CreatePostInput(val text : String)
 
-    fun createPost(body: CreatePostInput, user: STUser): PostsService.CreatePostStatus {
+    fun createPost(body: CreatePostInput, user: STUser): CreatePostStatus {
          val postText = body.text
          if(postText.length > POST_TEXT_MAX_LENGTH){
              return CreatePostStatus.Failed("Post exceeds $POST_TEXT_MAX_LENGTH characters")
@@ -27,5 +26,4 @@ class PostsService(private val dateUtil: DateUtil,private val etPostRepository: 
          etPostRepository.save(etPost)
          return CreatePostStatus.Success
     }
-
 }
