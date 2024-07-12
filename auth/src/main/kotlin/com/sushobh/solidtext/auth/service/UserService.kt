@@ -57,7 +57,7 @@ internal class UserService internal constructor(
 
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
-    data class OtpValidateInput(val otpText: String, val email: String)
+    data class OtpValidateInput(val otpText: String, val email: String,val otpId : String)
     data class UpdateUserNameInput(val newName : String)
 
 
@@ -98,6 +98,9 @@ internal class UserService internal constructor(
             latestAttempt.otpId?.let {
                 val sentOtp = otpService.getOtp(it)
                 sentOtp?.let {
+                    if(otpValidateInput.otpId != sentOtp.stringid){
+                        return OtpValidateStatus.InvalidDetails
+                    }
                     val time = dateUtil.getCurrentTime()
                     if (otpValidateInput.otpText == sentOtp.otp) {
                         val etPassword =
