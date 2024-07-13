@@ -15,4 +15,5 @@ internal interface OtpRepo : CrudRepository<ETOtp, BigInteger> {
         nativeQuery = true
     )
     fun findByOtpId(otpId: BigInteger): ETOtp?
+
 }

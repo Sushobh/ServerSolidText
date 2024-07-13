@@ -38,7 +38,7 @@ internal class UserService internal constructor(
     }
 
     sealed class OtpValidateStatus(val status: String?) {
-        data object UserCreated : OtpValidateStatus(UserCreated::class.simpleName)
+        data object Success : OtpValidateStatus(Success::class.simpleName)
         data object ExpiredRequest : OtpValidateStatus(ExpiredRequest::class.simpleName)
         data object InvalidDetails : OtpValidateStatus(InvalidDetails::class.simpleName)
     }
@@ -57,7 +57,7 @@ internal class UserService internal constructor(
 
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
-    data class OtpValidateInput(val otpText: String, val email: String,val otpId : String)
+    data class OtpValidateInput(val otpText: String,val otpId : String)
     data class UpdateUserNameInput(val newName : String)
 
 
@@ -89,7 +89,7 @@ internal class UserService internal constructor(
     }
 
     fun validateOtp(otpValidateInput: OtpValidateInput): OtpValidateStatus {
-        val latestAttempt = signupAttemptRepo.findLatestByEmail(otpValidateInput.email)
+        val latestAttempt = signupAttemptRepo.findByOtpStringId(otpValidateInput.otpId)
         latestAttempt?.let {
             val hasExpired = dateUtil.hasExpired(SecondsExpirable(latestAttempt.time, SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS))
             if (hasExpired) {
@@ -110,7 +110,7 @@ internal class UserService internal constructor(
                             passwordId = etPassword.id, email = latestAttempt.email
                         )
                         etUserRepo.save(etUser)
-                        return OtpValidateStatus.UserCreated
+                        return OtpValidateStatus.Success
                     }
                 }
             }
