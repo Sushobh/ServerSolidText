@@ -35,6 +35,11 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
 
 
+
+	implementation 'org.springframework:spring-websocket'
+
+
+
 	implementation project(':auth')
 	implementation project(':common')
 	implementation project(':posts')
