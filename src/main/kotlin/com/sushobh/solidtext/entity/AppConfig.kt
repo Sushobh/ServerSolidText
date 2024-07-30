@@ -11,6 +11,7 @@ data class AppConfig (
     @JsonProperty("OTP_VALIDATE_URL") val otpValidateUrl : String = "$BASE_URL/public/otpValidate",
     @JsonProperty("LOGIN_URL") val loginUrl : String = "$BASE_URL/public/login",
     @JsonProperty("POST_TEXT_LENGTH") val postTextMaxLength : String = "200",
+    @JsonProperty("POST_TEXT_MIN_LENGTH") val postTextMinLength : String = "50",
     @JsonProperty("CREATE_POST_URL") val createPostUrl : String = "$BASE_URL/posts/createPost"
 )
 
