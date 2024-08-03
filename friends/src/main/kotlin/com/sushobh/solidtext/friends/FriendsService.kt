@@ -12,14 +12,16 @@ import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtFrenConnecti
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConRepo
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConReqRepo
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigInteger
 
 //TODO making adding friends transactional
+//TODO make view match with the repository
 @Service
-class FriendsService(private val dateUtil: DateUtil,
-                     private val etConReqRepo: ETConReqRepo,
-                     private val etConRepo: ETConRepo,
-                     private val authService: AuthService) {
+open class FriendsService(private val dateUtil: DateUtil,
+                                   private val etConReqRepo: ETConReqRepo,
+                                   private val etConRepo: ETConRepo,
+                                   private val authService: AuthService) {
 
     data class FrenReqActionInput(val toUserId: BigInteger, val action : String)
 
@@ -52,6 +54,8 @@ class FriendsService(private val dateUtil: DateUtil,
                     addFriends(fromUserId,toUserId)
                     return FrenReqResult.FriendAdded
                 }
+
+                FrenReqStatus.InActive -> {}
             }
         }
 
@@ -65,6 +69,8 @@ class FriendsService(private val dateUtil: DateUtil,
                 Sent -> {
                     return FrenReqResult.Failed("Friend request already pending")
                 }
+
+                FrenReqStatus.InActive -> {}
             }
         }
         val newRequest = ETConnectionReq(dateUtil.getCurrentTime(),Sent.name!!,fromUserId,toUserId)
@@ -74,11 +80,16 @@ class FriendsService(private val dateUtil: DateUtil,
 
     private fun areFriends(id : BigInteger, id2 : BigInteger) : Boolean{
         val existingFriends = etConRepo.getExistingConnections(id,id2)
+
         return existingFriends.isNotEmpty()
     }
 
+
+
     private fun addFriends(from : BigInteger,to : BigInteger) {
         val etCon = EtFrenConnection(dateUtil.getCurrentTime(),from,to)
+        etConReqRepo.deActivateRequest(FrenReqStatus.InActive.name!!,from,to)
+        etConReqRepo.deActivateRequest(FrenReqStatus.InActive.name,to,from)
         etConRepo.save(etCon)
     }
 

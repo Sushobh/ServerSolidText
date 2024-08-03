@@ -1,4 +1,4 @@
-create table connection_request
+create table if not exists connection_request
 (
     time      timestamp with time zone,
     status    text,
@@ -9,7 +9,10 @@ create table connection_request
             primary key
 );
 
-create table login_attempt
+alter table connection_request
+    owner to postgres;
+
+create table if not exists login_attempt
 (
     id    bigint not null
         primary key,
@@ -18,7 +21,10 @@ create table login_attempt
     pwd   text   not null
 );
 
-create table otp
+alter table login_attempt
+    owner to postgres;
+
+create table if not exists otp
 (
     id           bigint default nextval('signup_attempt_id_seq'::regclass) not null
         primary key,
@@ -30,7 +36,10 @@ create table otp
     stringid     text   default uuid_generate_v4()                         not null
 );
 
-create table signup_attempt
+alter table otp
+    owner to postgres;
+
+create table if not exists signup_attempt
 (
     id     bigserial
         primary key,
@@ -42,7 +51,10 @@ create table signup_attempt
             references otp
 );
 
-create table token
+alter table signup_attempt
+    owner to postgres;
+
+create table if not exists token
 (
     id          bigint                   not null
         primary key,
@@ -53,7 +65,10 @@ create table token
     expiry_unit text                     not null
 );
 
-create table user_status
+alter table token
+    owner to postgres;
+
+create table if not exists user_status
 (
     id      bigint                   not null,
     time    timestamp with time zone not null,
@@ -62,7 +77,10 @@ create table user_status
     primary key (id, user_id)
 );
 
-create table password
+alter table user_status
+    owner to postgres;
+
+create table if not exists password
 (
     id            bigint                   not null
         primary key,
@@ -70,7 +88,10 @@ create table password
     password_text text                     not null
 );
 
-create table st_user
+alter table password
+    owner to postgres;
+
+create table if not exists st_user
 (
     id          bigint                   not null
         constraint user_pkey
@@ -87,7 +108,10 @@ create table st_user
     picture_id  bigint
 );
 
-create table picture
+alter table st_user
+    owner to postgres;
+
+create table if not exists picture
 (
     id   bigint                   not null
         primary key,
@@ -95,14 +119,20 @@ create table picture
     time timestamp with time zone not null
 );
 
-create table user_token_pair
+alter table picture
+    owner to postgres;
+
+create table if not exists user_token_pair
 (
     userid  bigint not null,
     tokenid bigint not null,
     primary key (userid, tokenid)
 );
 
-create table post
+alter table user_token_pair
+    owner to postgres;
+
+create table if not exists post
 (
     id         bigint not null
         constraint post_user
@@ -115,11 +145,165 @@ create table post
     time       timestamp with time zone
 );
 
-create table fren_connection
+alter table post
+    owner to postgres;
+
+create table if not exists fren_connection
 (
     from_user bigint,
     to_user   bigint,
     time      timestamp with time zone
 );
 
+alter table fren_connection
+    owner to postgres;
+
+create or replace view active_fren_connection_requests(time, status, from_user, to_user, id) as
+SELECT connection_request."time",
+       connection_request.status,
+       connection_request.from_user,
+       connection_request.to_user,
+       connection_request.id
+FROM connection_request
+WHERE connection_request.status <> 'InActive'::text;
+
+alter table active_fren_connection_requests
+    owner to postgres;
+
+create or replace function uuid_nil() returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_nil() owner to postgres;
+
+create or replace function uuid_ns_dns() returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_ns_dns() owner to postgres;
+
+create or replace function uuid_ns_url() returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_ns_url() owner to postgres;
+
+create or replace function uuid_ns_oid() returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_ns_oid() owner to postgres;
+
+create or replace function uuid_ns_x500() returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_ns_x500() owner to postgres;
+
+create or replace function uuid_generate_v1() returns uuid
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_generate_v1() owner to postgres;
+
+create or replace function uuid_generate_v1mc() returns uuid
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_generate_v1mc() owner to postgres;
+
+create or replace function uuid_generate_v3(namespace uuid, name text) returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_generate_v3(uuid, text) owner to postgres;
+
+create or replace function uuid_generate_v4() returns uuid
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_generate_v4() owner to postgres;
+
+create or replace function uuid_generate_v5(namespace uuid, name text) returns uuid
+    immutable
+    strict
+    parallel safe
+    language c
+as
+$$
+begin
+-- missing source code
+end;
+$$;
+
+alter function uuid_generate_v5(uuid, text) owner to postgres;
 
