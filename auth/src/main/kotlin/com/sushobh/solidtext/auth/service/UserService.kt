@@ -53,8 +53,14 @@ internal class UserService internal constructor(
         data object Failed : UpdateUserNameStatus(Success::class.simpleName)
     }
 
+    sealed class SearchUserStatus(val status : String?) {
+        data class Found(val user: STUser)  : SearchUserStatus(Found::class.simpleName)
+        object UserNotFound : SearchUserStatus(UserNotFound::class.simpleName)
+        object Failed : SearchUserStatus(Failed::class.simpleName)
+    }
 
 
+    data class SearchUserInput(val userName : String)
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String,val otpId : String)
@@ -65,6 +71,14 @@ internal class UserService internal constructor(
 
     private fun doesUserExist(email: String): Boolean {
         return etUserRepo.findByEmail(email) != null
+    }
+
+    fun getUserByName(searchUserInput: SearchUserInput) : SearchUserStatus {
+        val etUser = etUserRepo.findUserByName(searchUserInput.userName)
+        etUser?.let {
+            return SearchUserStatus.Found(STUser(etUser.id,etUser.username))
+        }
+        return SearchUserStatus.UserNotFound
     }
 
     fun onSignupAttempt(input: SignupInput): SignupStatus {

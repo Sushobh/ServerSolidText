@@ -65,4 +65,14 @@ internal class SignupController(
     }
 
 
+    @PostMapping("/user/searchUserByName")
+    suspend fun searchUserByName(@RequestBody body : UserService.SearchUserInput,
+                               @RequestHeader headers: Map<String, String>
+    ): STResponse<UserService.SearchUserStatus> {
+        return getUserRequestChain<UserService.SearchUserInput, UserService.SearchUserStatus>(userService,null, headers)
+            .addItem { input, _ ->
+                STResponse(userService.getUserByName(body), null)
+            }.next()
+    }
+
 }

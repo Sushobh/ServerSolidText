@@ -16,6 +16,12 @@ internal interface ETUserRepo : CrudRepository<ETUser, BigInteger> {
     )
     fun findUserByToken(tokenId: BigInteger): ETUser?
 
+    @Query(
+        "select * from st_user where username = ?1 limit 1",
+        nativeQuery = true
+    )
+    fun findUserByName(userName: String): ETUser?
+
     @Modifying(clearAutomatically=true)
     @Transactional
     @Query("update st_user set username = ?1 where id = ?2", nativeQuery = true)
