@@ -1,10 +1,8 @@
 package com.sushobh.solidtext.auth.entity
 
 import com.sushobh.common.util.entity.BaseTable
-import jakarta.persistence.Cacheable
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
+import jakarta.persistence.*
+import java.math.BigInteger
 import java.time.OffsetDateTime
 
 
@@ -12,6 +10,12 @@ import java.time.OffsetDateTime
 @Entity
 @Table(name = "otp")
 internal class ETOtp() : BaseTable() {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "signup_attempt_id_seq")
+    @SequenceGenerator(name = "signup_attempt_id_seq", sequenceName = "signup_attempt_id_seq", allocationSize = 1 )
+    lateinit var id : BigInteger
+        private set
 
     constructor(type: String, otp: String, time: OffsetDateTime) : this() {
         this.type = type

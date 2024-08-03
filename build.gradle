@@ -43,6 +43,7 @@ dependencies {
 	implementation project(':auth')
 	implementation project(':common')
 	implementation project(':posts')
+	implementation project(':friends')
 }
 
 tasks.withType(KotlinCompile) {

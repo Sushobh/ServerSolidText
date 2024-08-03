@@ -13,11 +13,7 @@ open class BaseTable(){
     }
 
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "signup_attempt_id_seq")
-    @SequenceGenerator(name = "signup_attempt_id_seq", sequenceName = "signup_attempt_id_seq", allocationSize = 1 )
-    lateinit var id : BigInteger
-       private set
+
 
     @Column(name = "time")
     lateinit var time: OffsetDateTime

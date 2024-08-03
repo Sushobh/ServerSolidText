@@ -20,7 +20,7 @@ class PostsController(private val authService : AuthService,private val postsSer
     ): STResponse<PostsService.CreatePostStatus> {
         return authService.getAuthUserChain<PostsService.CreatePostInput,PostsService.CreatePostStatus>(headers,body)
             .addItem { input, _ ->
-                STResponse(postsService.createPost(body,input.getExtra<STUser>(EXTRA_USER)), null)
+                STResponse(postsService.createPost(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
 }
