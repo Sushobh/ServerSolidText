@@ -2,6 +2,7 @@ package com.sushobh.solidtext.friends.controller
 
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
+
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.FriendsService
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,5 +34,16 @@ class FriendsController(private val friendsService: FriendsService, private val 
                 STResponse(friendsService.onFrenReqAction(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
+
+
+    @PostMapping("/frens/searchByUserName")
+    suspend fun searchUserByName(@RequestBody body : FriendsService.FrenSearchUserByNameInput,@RequestHeader headers: Map<String, String>) :
+            STResponse<FriendsService.FrenSearchStatus> {
+        return authService.getAuthUserChain<FriendsService.FrenSearchUserByNameInput,FriendsService.FrenSearchStatus>(headers,body)
+            .addItem { input, _ ->
+                STResponse(friendsService.searchUserByName(body,input.getExtra(EXTRA_USER)), null)
+            }.next()
+    }
+
 
 }
