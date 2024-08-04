@@ -318,3 +318,23 @@ $$;
 
 alter function uuid_generate_v5(uuid, text) owner to postgres;
 
+create function getpostfeed3(foruser integer, howmany integer)
+    returns TABLE(id integer, byuser integer, addedtime timestamp with time zone, posttext text, status text)
+    language sql
+as
+$$
+(SELECT id,post.by_user_id as byUser,post.time,post_text as postText,post.status
+ FROM post
+          INNER JOIN public.fren_connection fc ON fc.to_user = post.by_user_id
+ WHERE fc.from_user = forUser
+ UNION
+ SELECT id,post.by_user_id as byUser,post.time,post_text as postText,post.status
+ FROM post
+          INNER JOIN public.fren_connection fc ON fc.from_user = post.by_user_id
+ WHERE fc.to_user = forUser)
+    ORDER BY id DESC
+    LIMIT howMany;
+$$;
+
+alter function getpostfeed3(integer, integer) owner to postgres;
+
