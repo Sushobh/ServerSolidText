@@ -30,5 +30,9 @@ open class STRequest<X> {
         val value = extras.get(key)
         return value as M
     }
+
+    operator  fun <M> get(key : String) : M {
+        return extras.get(key) as M
+    }
 }
 

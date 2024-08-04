@@ -4,6 +4,7 @@ import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
 
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.FriendsService
+import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -43,6 +44,22 @@ class FriendsController(private val friendsService: FriendsService, private val 
             .addItem { input, _ ->
                 STResponse(friendsService.searchUserByName(body,input.getExtra(EXTRA_USER)), null)
             }.next()
+    }
+
+    @GetMapping("/frens/sentFriendRequests")
+    suspend fun getSentFriendRequests(@RequestHeader headers: Map<String, String>) : STResponse<List<STFrenRequest>>{
+        return authService.getAuthUserChain<Any,List<STFrenRequest>>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(friendsService.getSentRequests(input[EXTRA_USER]), null)
+            } .next()
+    }
+
+    @GetMapping("/frens/receivedRequests")
+    suspend fun getReceivedFriendRequests(@RequestHeader headers: Map<String, String>) : STResponse<List<STFrenRequest>>{
+        return authService.getAuthUserChain<Any,List<STFrenRequest>>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(friendsService.getReceivedRequests(input[EXTRA_USER]), null)
+            } .next()
     }
 
 

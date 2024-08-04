@@ -12,6 +12,8 @@ class AuthService internal constructor(private val userService: UserService) {
     fun <X,Y> getAuthUserChain(headers: Map<String, String> = hashMapOf(),body : X) =
         getUserRequestChain<X,Y>(headers = headers,userService = userService, body = body)
 
+
+
     suspend fun getUserByUserName(userName : String) : STUser? {
         val status =  userService.getUserByName(UserService.SearchUserInput(userName))
         when(status){
@@ -20,5 +22,4 @@ class AuthService internal constructor(private val userService: UserService) {
             UserService.SearchUserStatus.UserNotFound -> return null
         }
     }
-
 }

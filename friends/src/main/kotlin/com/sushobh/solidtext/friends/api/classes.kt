@@ -1,9 +1,8 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends.api
 
 import com.sushobh.solidtext.auth.api.STUser
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.Accepted
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.Nothing
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.Sent
+import java.math.BigInteger
+import java.time.Instant
 
 data class FrenReq(val fromUser : STUser)
 
@@ -18,3 +17,10 @@ sealed class FrenReqStatus(val name : String?) {
 }
 
 
+
+interface STFrenRequest {
+      val senttime : Instant
+      val receiverId : BigInteger
+      val userName : String
+      val senderId : BigInteger
+}

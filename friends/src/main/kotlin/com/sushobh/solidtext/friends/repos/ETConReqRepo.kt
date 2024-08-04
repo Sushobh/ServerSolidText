@@ -1,5 +1,6 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends.repos
 
+import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.ETConnectionReq
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -16,5 +17,11 @@ interface ETConReqRepo : CrudRepository<ETConnectionReq,BigInteger> {
     @Modifying
     @Query("update connection_request set status = ?1 where from_user = ?2 and to_user = ?3", nativeQuery = true)
     fun deActivateRequest(status : String, fromId : BigInteger, toId : BigInteger)
+
+    @Query("select *from fren_requests_by_user where sender_id = ?1", nativeQuery = true)
+    fun getSentRequests(from : BigInteger) : List<STFrenRequest>
+
+    @Query("select *from fren_requests_by_user where receiver_id = ?1", nativeQuery = true)
+    fun getReceivedRequests(to : BigInteger) : List<STFrenRequest>
 
 }

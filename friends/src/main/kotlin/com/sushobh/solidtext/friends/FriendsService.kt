@@ -6,6 +6,7 @@ import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.*
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.Nothing
+import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.ETConnectionReq
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtFrenConnection
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConRepo
@@ -60,13 +61,13 @@ open class FriendsService(
                 }
 
                 Nothing -> {}
-                FrenReqStatus.Refused -> {}
+                Refused -> {}
                 Sent -> {
                     addFriends(fromUserId, toUserId)
                     return FrenReqResult.FriendAdded
                 }
 
-                FrenReqStatus.InActive -> {}
+                InActive -> {}
             }
         }
 
@@ -125,6 +126,14 @@ open class FriendsService(
     private fun canFriendRequestBeSentToUser(user: STUser, from: STUser): Boolean {
         val areFriends = areFriends(user.userId, from.userId)
         return !areFriends
+    }
+
+    fun getSentRequests(user : STUser): List<STFrenRequest> {
+        return etConReqRepo.getSentRequests(user.userId)
+    }
+
+    fun getReceivedRequests(user: STUser): List<STFrenRequest>? {
+         return etConReqRepo.getReceivedRequests(user.userId)
     }
 
 }
