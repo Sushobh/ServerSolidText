@@ -13,6 +13,9 @@ class AuthService internal constructor(private val userService: UserService) {
         getUserRequestChain<X,Y>(headers = headers,userService = userService, body = body)
 
 
+    suspend fun getUserByid(id : BigInteger) : STUser? {
+        return userService.getUserById(id)
+    }
 
     suspend fun getUserByUserName(userName : String) : STUser? {
         val status =  userService.getUserByName(UserService.SearchUserInput(userName))

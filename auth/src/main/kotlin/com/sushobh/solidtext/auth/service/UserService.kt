@@ -10,10 +10,12 @@ import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
 import com.sushobh.solidtext.auth.response.RespETUser
+import com.sushobh.solidtext.auth.toStUser
 import common.util.time.SecondsExpirable
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
+import java.math.BigInteger
 import kotlin.jvm.optionals.getOrNull
 
 
@@ -73,10 +75,14 @@ internal class UserService internal constructor(
         return etUserRepo.findByEmail(email) != null
     }
 
+    fun ETUser.hello() {
+
+    }
+
     fun getUserByName(searchUserInput: SearchUserInput) : SearchUserStatus {
         val etUser = etUserRepo.findUserByName(searchUserInput.userName)
         etUser?.let {
-            return SearchUserStatus.Found(STUser(etUser.id,etUser.username))
+            return SearchUserStatus.Found(it.toStUser())
         }
         return SearchUserStatus.UserNotFound
     }
@@ -167,6 +173,10 @@ internal class UserService internal constructor(
               }
         }
         return UpdateUserNameStatus.Failed
+    }
+
+    fun getUserById(id : BigInteger) : STUser? {
+        return this.etUserRepo.findById(id).getOrNull()?.toStUser()
     }
 
 

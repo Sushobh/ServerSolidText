@@ -1,14 +1,22 @@
 package com.sushobh.solidtext.posts
 
 import com.sushobh.common.util.DateUtil
+import com.sushobh.solidtext.auth.api.AuthService
 import com.sushobh.solidtext.auth.api.STUser
+import com.sushobh.solidtext.posts.api.STPost
 import com.sushobh.solidtext.posts.entity.ETPost
 import com.sushobh.solidtext.posts.repos.ETPostRepository
+import com.sushobh.solidtext.posts.repos.PJPostFeedItem
 import org.springframework.stereotype.Service
+import java.math.BigInteger
+import java.time.Instant
 
 
 @Service
-class PostsService(private val dateUtil: DateUtil,private val etPostRepository: ETPostRepository) {
+internal class PostsService(private val dateUtil: DateUtil,
+                            private val etPostRepository: ETPostRepository,
+                            private val authService: AuthService
+    ) {
 
     sealed class CreatePostStatus(val status : String?) {
          data object Success : CreatePostStatus(Success::class.simpleName)
@@ -25,5 +33,18 @@ class PostsService(private val dateUtil: DateUtil,private val etPostRepository: 
          val etPost = ETPost(postText = postText,status = "",time = dateUtil.getCurrentTime(), byUserId = user.userId)
          etPostRepository.save(etPost)
          return CreatePostStatus.Success
+    }
+
+
+    suspend fun getPostFeed(user : STUser) : List<STPost> {
+        return etPostRepository.getPostFeed(user.userId, NUM_ITEMS_PER_POST_FEED_CALL).map {
+            STPost(
+                addedTime = it.addedTime,
+                postText = it.postText,
+                byUser = authService.getUserByid(it.byUser),
+                id = it.id,
+                status = it.status
+            )
+        }
     }
 }

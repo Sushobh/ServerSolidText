@@ -4,15 +4,14 @@ import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
 import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.posts.PostsService
+import com.sushobh.solidtext.posts.api.STPost
+import com.sushobh.solidtext.posts.repos.PJPostFeedItem
 import common.util.requests.STResponse
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
-class PostsController(private val authService : AuthService,private val postsService: PostsService) {
+internal class PostsController(private val authService : AuthService,private val postsService: PostsService) {
 
     @PostMapping("/posts/createPost")
     suspend fun createPost(@RequestBody body : PostsService.CreatePostInput,
@@ -23,4 +22,16 @@ class PostsController(private val authService : AuthService,private val postsSer
                 STResponse(postsService.createPost(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
+
+
+    @GetMapping("/posts/feed")
+    suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<List<STPost>>{
+        return authService.getAuthUserChain<Any,List<STPost>>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(postsService.getPostFeed(input[EXTRA_USER]), null)
+            } .next()
+    }
+
+
+
 }
