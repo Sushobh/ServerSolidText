@@ -23,7 +23,6 @@ internal class PostsController(private val authService : AuthService,private val
             }.next()
     }
 
-
     @GetMapping("/posts/feed")
     suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<List<STPost>>{
         return authService.getAuthUserChain<Any,List<STPost>>(headers,Unit)
@@ -32,6 +31,14 @@ internal class PostsController(private val authService : AuthService,private val
             } .next()
     }
 
-
+    @PostMapping("/posts/like")
+    suspend fun postLike(@RequestHeader headers: Map<String, String>, @RequestBody postLikeInput: PostsService.PostLikeInput) :
+            STResponse<PostsService.PostLikeStatus> {
+        return authService.getAuthUserChain<PostsService.PostLikeInput,PostsService.PostLikeStatus>(headers, body = postLikeInput)
+            .addItem { input, _ ->
+                val resp = postsService.postLikeInput(postLikeInput,input[EXTRA_USER])
+                STResponse(resp,null)
+            }.next()
+    }
 
 }

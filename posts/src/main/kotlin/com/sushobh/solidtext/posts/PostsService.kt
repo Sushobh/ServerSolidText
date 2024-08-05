@@ -5,6 +5,9 @@ import com.sushobh.solidtext.auth.api.AuthService
 import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.posts.api.STPost
 import com.sushobh.solidtext.posts.entity.ETPost
+import com.sushobh.solidtext.posts.entity.ETPostLike
+import com.sushobh.solidtext.posts.entity.ETPostLikeId
+import com.sushobh.solidtext.posts.repos.ETPostLikeRepo
 import com.sushobh.solidtext.posts.repos.ETPostRepository
 import com.sushobh.solidtext.posts.repos.PJPostFeedItem
 import org.springframework.stereotype.Service
@@ -15,7 +18,8 @@ import java.time.Instant
 @Service
 internal class PostsService(private val dateUtil: DateUtil,
                             private val etPostRepository: ETPostRepository,
-                            private val authService: AuthService
+                            private val authService: AuthService,
+    private val etPostLikeRepo : ETPostLikeRepo
     ) {
 
     sealed class CreatePostStatus(val status : String?) {
@@ -24,6 +28,13 @@ internal class PostsService(private val dateUtil: DateUtil,
     }
 
     data class CreatePostInput(val text : String)
+
+    data class PostLikeInput(val postId : BigInteger, val isLike : Boolean)
+
+    sealed class PostLikeStatus(val status : String?) {
+        data object Success : PostLikeStatus(Success::class.simpleName)
+        data object  Failed : PostLikeStatus(Failed::class.simpleName)
+    }
 
     fun createPost(body: CreatePostInput, user: STUser): CreatePostStatus {
          val postText = body.text
@@ -47,4 +58,20 @@ internal class PostsService(private val dateUtil: DateUtil,
             )
         }
     }
+
+    suspend fun postLikeInput(postLikeInput: PostLikeInput,user: STUser) : PostLikeStatus{
+        try {
+            if(postLikeInput.isLike){
+                etPostLikeRepo.save(ETPostLike(dateUtil.getCurrentTime(), postId = postLikeInput.postId, userId = user.userId))
+            }
+            else {
+               etPostLikeRepo.deleteById(ETPostLikeId(userId = user.userId, postId = postLikeInput.postId))
+            }
+            return PostLikeStatus.Success
+        } catch (e: Exception) {
+           return PostLikeStatus.Failed
+        }
+
+    }
+
 }
