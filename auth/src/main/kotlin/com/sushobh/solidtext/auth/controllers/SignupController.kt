@@ -1,7 +1,6 @@
 package com.sushobh.solidtext.auth.controllers
 
 import com.sushobh.solidtext.auth.EXTRA_USER
-import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.auth.getDefaultRequestChain
 import com.sushobh.solidtext.auth.getUserRequestChain
 import com.sushobh.solidtext.auth.service.TokenService
@@ -15,10 +14,6 @@ internal class SignupController(
     private val userService: UserService,
     private val tokenService: TokenService
 ) {
-
-
-
-
 
     @PostMapping("/public/signup")
     suspend fun signup(@RequestBody body: UserService.SignupInput): STResponse<UserService.SignupStatus> {
@@ -61,6 +56,16 @@ internal class SignupController(
         return getUserRequestChain<UserService.UpdateUserNameInput, UserService.UpdateUserNameStatus>(userService,null, headers)
             .addItem { input, _ ->
                 STResponse(userService.updateUserName(body,input.getExtra(EXTRA_USER)), null)
+            }.next()
+    }
+
+    @PostMapping("/user/updateProperty")
+    suspend fun updateProperty(@RequestBody body : UserService.UserPropInput,
+                               @RequestHeader headers: Map<String, String>
+    ): STResponse<UserService.UpdateUserPropStatus> {
+        return getUserRequestChain<UserService.UserPropInput, UserService.UpdateUserPropStatus>(userService,null, headers)
+            .addItem { input, _ ->
+                STResponse(userService.updateUserProp(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
 

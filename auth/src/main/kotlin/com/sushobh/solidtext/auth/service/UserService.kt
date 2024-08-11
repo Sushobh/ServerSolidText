@@ -3,6 +3,7 @@ package com.sushobh.solidtext.auth.service
 import com.sushobh.common.util.DateUtil
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
+import com.sushobh.solidtext.auth.USER_PROP_VALUE_MAX_LENGTH
 import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.auth.entity.*
 import com.sushobh.solidtext.auth.repository.ETPasswordRepo
@@ -29,6 +30,7 @@ internal class UserService internal constructor(
     private val passwordEncoder: BCryptPasswordEncoder,
     private val tokenService: TokenService,
     private val tokenPairRepo: ETUserTokenPairRepo,
+    @Qualifier("userPropKeys") private val userPropKeys : Set<String>,
     @Qualifier("loginTokenConfig") private val loginTokenConfig: TokenService.TokenConfig
 ) {
 
@@ -61,13 +63,18 @@ internal class UserService internal constructor(
         object Failed : SearchUserStatus(Failed::class.simpleName)
     }
 
+    sealed class UpdateUserPropStatus(val status : String?) {
+        data object Success : UpdateUserPropStatus(Success::class.simpleName)
+        data class Failed(val message : String? = null) : UpdateUserPropStatus(Failed::class.simpleName)
+    }
+
 
     data class SearchUserInput(val userName : String)
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String,val otpId : String)
     data class UpdateUserNameInput(val newName : String)
-
+    data class UserPropInput(val key : String,val value : String? = null)
 
 
 
@@ -75,9 +82,7 @@ internal class UserService internal constructor(
         return etUserRepo.findByEmail(email) != null
     }
 
-    fun ETUser.hello() {
 
-    }
 
     fun getUserByName(searchUserInput: SearchUserInput) : SearchUserStatus {
         val etUser = etUserRepo.findUserByName(searchUserInput.userName)
@@ -173,6 +178,15 @@ internal class UserService internal constructor(
               }
         }
         return UpdateUserNameStatus.Failed
+    }
+
+    fun updateUserProp(input: UserPropInput, extra: STUser) : UpdateUserPropStatus{
+        if(!userPropKeys.contains(input.key) || input.value.orEmpty().length > USER_PROP_VALUE_MAX_LENGTH){
+            return UpdateUserPropStatus.Failed("Invald key or value")
+        }
+
+        etUserRepo.updateUserProp(input.key,input.value.orEmpty(),extra.userId)
+        return UpdateUserPropStatus.Success
     }
 
     fun getUserById(id : BigInteger) : STUser? {

@@ -18,4 +18,8 @@ open class Configuration {
     @Bean
     open fun loginTokenConfig() = TokenService.TokenConfig(TOKEN_USER_LOGIN, 1L, ChronoUnit.HOURS)
 
+    @Qualifier("userPropKeys")
+    @Bean
+    open fun userPropKeys() = hashSetOf("profile_pic1","profile_pic2")
+
 }
