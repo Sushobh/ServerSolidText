@@ -2,6 +2,8 @@ package com.sushobh.solidtext.auth.entity
 
 import com.sushobh.common.util.entity.BaseTable
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.math.BigInteger
 import java.time.OffsetDateTime
 
@@ -27,6 +29,10 @@ internal class ETUser() : BaseTable() {
     @Column(name = "password_id")
     lateinit var passwordId: BigInteger
         private set
+
+    @Column(name = "user_props")
+    @JdbcTypeCode(SqlTypes.JSON)
+    val userProps: Map<String, String>? = null
 
     constructor(time: OffsetDateTime, passwordId: BigInteger, username: String, email: String) : this() {
         this.time = time
