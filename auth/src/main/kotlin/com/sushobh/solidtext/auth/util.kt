@@ -1,6 +1,7 @@
 package com.sushobh.solidtext.auth
 
-import com.sushobh.solidtext.auth.api.STUser
+
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.entity.ETUser
 import com.sushobh.solidtext.auth.service.UserService
 import com.sushobh.solidtext.auth.service.UserTokenChecker

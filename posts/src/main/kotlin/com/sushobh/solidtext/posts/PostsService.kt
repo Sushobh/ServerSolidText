@@ -1,18 +1,17 @@
 package com.sushobh.solidtext.posts
 
 import com.sushobh.common.util.DateUtil
+import com.sushobh.solidtext.apiclasses.PostServiceClasses
+import com.sushobh.solidtext.apiclasses.PostServiceClasses.PostLikeInput
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.api.AuthService
-import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.posts.api.STPost
 import com.sushobh.solidtext.posts.entity.ETPost
 import com.sushobh.solidtext.posts.entity.ETPostLike
 import com.sushobh.solidtext.posts.entity.ETPostLikeId
 import com.sushobh.solidtext.posts.repos.ETPostLikeRepo
 import com.sushobh.solidtext.posts.repos.ETPostRepository
-import com.sushobh.solidtext.posts.repos.PJPostFeedItem
 import org.springframework.stereotype.Service
-import java.math.BigInteger
-import java.time.Instant
 
 
 @Service
@@ -22,28 +21,14 @@ internal class PostsService(private val dateUtil: DateUtil,
     private val etPostLikeRepo : ETPostLikeRepo
     ) {
 
-    sealed class CreatePostStatus(val status : String?) {
-         data object Success : CreatePostStatus(Success::class.simpleName)
-         data class  Failed(val reason : String) : CreatePostStatus(Failed::class.simpleName)
-    }
-
-    data class CreatePostInput(val text : String)
-
-    data class PostLikeInput(val postId : BigInteger, val isLike : Boolean)
-
-    sealed class PostLikeStatus(val status : String?) {
-        data object Success : PostLikeStatus(Success::class.simpleName)
-        data object  Failed : PostLikeStatus(Failed::class.simpleName)
-    }
-
-    fun createPost(body: CreatePostInput, user: STUser): CreatePostStatus {
+    fun createPost(body: PostServiceClasses.CreatePostInput, user: STUser): PostServiceClasses.CreatePostStatus {
          val postText = body.text
          if(postText.length > POST_TEXT_MAX_LENGTH){
-             return CreatePostStatus.Failed("Post exceeds $POST_TEXT_MAX_LENGTH characters")
+             return PostServiceClasses.CreatePostStatus.Failed("Post exceeds $POST_TEXT_MAX_LENGTH characters")
          }
          val etPost = ETPost(postText = postText,status = "",time = dateUtil.getCurrentTime(), byUserId = user.userId)
          etPostRepository.save(etPost)
-         return CreatePostStatus.Success
+         return PostServiceClasses.CreatePostStatus.Success
     }
 
 
@@ -59,7 +44,7 @@ internal class PostsService(private val dateUtil: DateUtil,
         }
     }
 
-    suspend fun postLikeInput(postLikeInput: PostLikeInput,user: STUser) : PostLikeStatus{
+    suspend fun postLikeInput(postLikeInput: PostLikeInput, user: STUser) : PostServiceClasses.PostLikeStatus {
         try {
             if(postLikeInput.isLike){
                 etPostLikeRepo.save(ETPostLike(dateUtil.getCurrentTime(), postId = postLikeInput.postId, userId = user.userId))
@@ -67,9 +52,9 @@ internal class PostsService(private val dateUtil: DateUtil,
             else {
                etPostLikeRepo.deleteById(ETPostLikeId(userId = user.userId, postId = postLikeInput.postId))
             }
-            return PostLikeStatus.Success
+            return PostServiceClasses.PostLikeStatus.Success
         } catch (e: Exception) {
-           return PostLikeStatus.Failed
+           return PostServiceClasses.PostLikeStatus.Failed
         }
 
     }

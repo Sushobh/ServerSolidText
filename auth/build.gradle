@@ -49,6 +49,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
 
     implementation project(':common')
+    implementation project(':apiclasses')
 }
 
 dependencyManagement {

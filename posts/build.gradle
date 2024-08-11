@@ -50,6 +50,7 @@ dependencies {
 
     implementation project(':common')
     implementation project(":auth")
+    implementation project(':apiclasses')
 }
 
 dependencyManagement {

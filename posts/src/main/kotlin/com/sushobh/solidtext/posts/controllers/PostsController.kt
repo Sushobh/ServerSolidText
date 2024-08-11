@@ -1,8 +1,8 @@
 package com.sushobh.solidtext.posts.controllers
 
+import com.sushobh.solidtext.apiclasses.PostServiceClasses
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
-import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.posts.PostsService
 import com.sushobh.solidtext.posts.api.STPost
 import com.sushobh.solidtext.posts.repos.PJPostFeedItem
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.*
 internal class PostsController(private val authService : AuthService,private val postsService: PostsService) {
 
     @PostMapping("/posts/createPost")
-    suspend fun createPost(@RequestBody body : PostsService.CreatePostInput,
+    suspend fun createPost(@RequestBody body : PostServiceClasses.CreatePostInput,
                            @RequestHeader headers: Map<String, String>
-    ): STResponse<PostsService.CreatePostStatus> {
-        return authService.getAuthUserChain<PostsService.CreatePostInput,PostsService.CreatePostStatus>(headers,body)
+    ): STResponse<PostServiceClasses.CreatePostStatus> {
+        return authService.getAuthUserChain<PostServiceClasses.CreatePostInput, PostServiceClasses.CreatePostStatus>(headers,body)
             .addItem { input, _ ->
                 STResponse(postsService.createPost(body,input.getExtra(EXTRA_USER)), null)
             }.next()
@@ -32,9 +32,9 @@ internal class PostsController(private val authService : AuthService,private val
     }
 
     @PostMapping("/posts/like")
-    suspend fun postLike(@RequestHeader headers: Map<String, String>, @RequestBody postLikeInput: PostsService.PostLikeInput) :
-            STResponse<PostsService.PostLikeStatus> {
-        return authService.getAuthUserChain<PostsService.PostLikeInput,PostsService.PostLikeStatus>(headers, body = postLikeInput)
+    suspend fun postLike(@RequestHeader headers: Map<String, String>, @RequestBody postLikeInput: PostServiceClasses.PostLikeInput) :
+            STResponse<PostServiceClasses.PostLikeStatus> {
+        return authService.getAuthUserChain<PostServiceClasses.PostLikeInput, PostServiceClasses.PostLikeStatus>(headers, body = postLikeInput)
             .addItem { input, _ ->
                 val resp = postsService.postLikeInput(postLikeInput,input[EXTRA_USER])
                 STResponse(resp,null)

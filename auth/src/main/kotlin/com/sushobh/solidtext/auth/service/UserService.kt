@@ -1,16 +1,17 @@
 package com.sushobh.solidtext.auth.service
 
 import com.sushobh.common.util.DateUtil
+import com.sushobh.solidtext.apiclasses.AuthServiceClasses
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
 import com.sushobh.solidtext.auth.USER_PROP_VALUE_MAX_LENGTH
-import com.sushobh.solidtext.auth.api.STUser
 import com.sushobh.solidtext.auth.entity.*
 import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
-import com.sushobh.solidtext.auth.response.RespETUser
+import com.sushobh.solidtext.apiclasses.RespETUser
 import com.sushobh.solidtext.auth.toStUser
 import common.util.time.SecondsExpirable
 import org.springframework.beans.factory.annotation.Qualifier
@@ -35,67 +36,24 @@ internal class UserService internal constructor(
 ) {
 
 
-    sealed class SignupStatus(val status : String?)  {
-        data class OtpSent(val stringId : String) : SignupStatus(OtpSent::class.simpleName)
-        data object UserAlreadyExists : SignupStatus(UserAlreadyExists::class.simpleName)
-        data object Error : SignupStatus(kotlin.Error::class.simpleName)
-    }
-
-    sealed class OtpValidateStatus(val status: String?) {
-        data object Success : OtpValidateStatus(Success::class.simpleName)
-        data object ExpiredRequest : OtpValidateStatus(ExpiredRequest::class.simpleName)
-        data object InvalidDetails : OtpValidateStatus(InvalidDetails::class.simpleName)
-    }
-
-    sealed class LoginStatus(val status : String?) {
-        data object InvalidCredentials : LoginStatus(InvalidCredentials::class.simpleName)
-        data class Success(val tokenText: String) : LoginStatus(Success::class.simpleName)
-    }
-
-    sealed class UpdateUserNameStatus(val status : String?) {
-        data class Success(val respUser: RespETUser) : UpdateUserNameStatus(Success::class.simpleName)
-        data object Failed : UpdateUserNameStatus(Success::class.simpleName)
-    }
-
-    sealed class SearchUserStatus(val status : String?) {
-        data class Found(val user: STUser)  : SearchUserStatus(Found::class.simpleName)
-        object UserNotFound : SearchUserStatus(UserNotFound::class.simpleName)
-        object Failed : SearchUserStatus(Failed::class.simpleName)
-    }
-
-    sealed class UpdateUserPropStatus(val status : String?) {
-        data object Success : UpdateUserPropStatus(Success::class.simpleName)
-        data class Failed(val message : String? = null) : UpdateUserPropStatus(Failed::class.simpleName)
-    }
-
-
-    data class SearchUserInput(val userName : String)
-    data class LoginInput(val email: String, val password: String)
-    data class SignupInput(val email: String, val password: String)
-    data class OtpValidateInput(val otpText: String,val otpId : String)
-    data class UpdateUserNameInput(val newName : String)
-    data class UserPropInput(val key : String,val value : String? = null)
-
-
-
     private fun doesUserExist(email: String): Boolean {
         return etUserRepo.findByEmail(email) != null
     }
 
 
 
-    fun getUserByName(searchUserInput: SearchUserInput) : SearchUserStatus {
+    fun getUserByName(searchUserInput: AuthServiceClasses.SearchUserInput) : AuthServiceClasses.SearchUserStatus {
         val etUser = etUserRepo.findUserByName(searchUserInput.userName)
         etUser?.let {
-            return SearchUserStatus.Found(it.toStUser())
+            return AuthServiceClasses.SearchUserStatus.Found(it.toStUser())
         }
-        return SearchUserStatus.UserNotFound
+        return AuthServiceClasses.SearchUserStatus.UserNotFound
     }
 
-    fun onSignupAttempt(input: SignupInput): SignupStatus {
+    fun onSignupAttempt(input: AuthServiceClasses.SignupInput): AuthServiceClasses.SignupStatus {
         val doesUserExist = doesUserExist(input.email)
         if (doesUserExist) {
-            return SignupStatus.UserAlreadyExists
+            return AuthServiceClasses.SignupStatus.UserAlreadyExists
         } else {
             val sentOtp = otpService.sendOtp(OTP_TYPE_SIGNUP)
             sentOtp?.let {
@@ -107,24 +65,24 @@ internal class UserService internal constructor(
                         sentOtp.id
                     )
                 signupAttemptRepo.save(signupAttempt)
-                return SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
+                return AuthServiceClasses.SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
             }
-            return SignupStatus.Error
+            return AuthServiceClasses.SignupStatus.Error
         }
     }
 
-    fun validateOtp(otpValidateInput: OtpValidateInput): OtpValidateStatus {
+    fun validateOtp(otpValidateInput: AuthServiceClasses.OtpValidateInput): AuthServiceClasses.OtpValidateStatus {
         val latestAttempt = signupAttemptRepo.findByOtpStringId(otpValidateInput.otpId)
         latestAttempt?.let {
             val hasExpired = dateUtil.hasExpired(SecondsExpirable(latestAttempt.time, SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS))
             if (hasExpired) {
-                return OtpValidateStatus.ExpiredRequest
+                return AuthServiceClasses.OtpValidateStatus.ExpiredRequest
             }
             latestAttempt.otpId?.let {
                 val sentOtp = otpService.getOtp(it)
                 sentOtp?.let {
                     if(otpValidateInput.otpId != sentOtp.stringid){
-                        return OtpValidateStatus.InvalidDetails
+                        return AuthServiceClasses.OtpValidateStatus.InvalidDetails
                     }
                     val time = dateUtil.getCurrentTime()
                     if (otpValidateInput.otpText == sentOtp.otp) {
@@ -135,15 +93,15 @@ internal class UserService internal constructor(
                             passwordId = etPassword.id, email = latestAttempt.email
                         )
                         etUserRepo.save(etUser)
-                        return OtpValidateStatus.Success
+                        return AuthServiceClasses.OtpValidateStatus.Success
                     }
                 }
             }
         }
-        return OtpValidateStatus.InvalidDetails
+        return AuthServiceClasses.OtpValidateStatus.InvalidDetails
     }
 
-    fun login(loginInput: LoginInput): LoginStatus {
+    fun login(loginInput: AuthServiceClasses.LoginInput): AuthServiceClasses.LoginStatus {
         val etUser = etUserRepo.findByEmail(loginInput.email)
         etUser?.let {
             val etPassword = etPasswordRepo.findById(etUser.passwordId).getOrNull()
@@ -151,11 +109,11 @@ internal class UserService internal constructor(
                 if (passwordEncoder.matches(loginInput.password, etPassword.passwordText)) {
                     val token = tokenService.generateToken(loginTokenConfig)
                     tokenPairRepo.save(ETUserTokenPair(ETUserTokenPairId(etUser.id, token.id)))
-                    return LoginStatus.Success(token.tokenText)
+                    return AuthServiceClasses.LoginStatus.Success(token.tokenText)
                 }
             }
         }
-        return LoginStatus.InvalidCredentials
+        return AuthServiceClasses.LoginStatus.InvalidCredentials
     }
 
     internal fun getUserFromToken(tokenText: String): ETUser? {
@@ -168,25 +126,25 @@ internal class UserService internal constructor(
         }
     }
 
-    fun updateUserName(updateUserNameInput: UpdateUserNameInput, user: STUser) : UpdateUserNameStatus{
+    fun updateUserName(updateUserNameInput: AuthServiceClasses.UpdateUserNameInput, user: STUser) : AuthServiceClasses.UpdateUserNameStatus {
         val etUser = etUserRepo.findById(user.userId).getOrNull()
         etUser?.let {
               etUserRepo.updateUserName(updateUserNameInput.newName,etUser.id)
               val newUserRow = etUserRepo.findById(user.userId).getOrNull()
               newUserRow?.let {
-                  return UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
+                  return AuthServiceClasses.UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
               }
         }
-        return UpdateUserNameStatus.Failed
+        return AuthServiceClasses.UpdateUserNameStatus.Failed
     }
 
-    fun updateUserProp(input: UserPropInput, extra: STUser) : UpdateUserPropStatus{
+    fun updateUserProp(input: AuthServiceClasses.UserPropInput, extra: STUser) : AuthServiceClasses.UpdateUserPropStatus {
         if(!userPropKeys.contains(input.key) || input.value.orEmpty().length > USER_PROP_VALUE_MAX_LENGTH){
-            return UpdateUserPropStatus.Failed("Invald key or value")
+            return AuthServiceClasses.UpdateUserPropStatus.Failed("Invald key or value")
         }
 
         etUserRepo.updateUserProp(input.key,input.value.orEmpty(),extra.userId)
-        return UpdateUserPropStatus.Success
+        return AuthServiceClasses.UpdateUserPropStatus.Success
     }
 
     fun getUserById(id : BigInteger) : STUser? {

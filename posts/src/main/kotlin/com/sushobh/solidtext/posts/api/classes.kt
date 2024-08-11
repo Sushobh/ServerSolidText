@@ -1,7 +1,8 @@
 package com.sushobh.solidtext.posts.api
 
-import com.sushobh.solidtext.auth.api.STUser
-import com.sushobh.solidtext.auth.response.RespETUser
+
+import com.sushobh.solidtext.apiclasses.RespETUser
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.posts.repos.PJPostFeedItem
 import java.math.BigInteger
 import java.time.Instant

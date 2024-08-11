@@ -1,12 +1,13 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends
 
 import com.sushobh.common.util.DateUtil
+import com.sushobh.solidtext.apiclasses.FriendServiceClasses
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.api.AuthService
-import com.sushobh.solidtext.auth.api.STUser
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.*
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.FrenReqStatus.Nothing
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
+import com.sushobh.solidtext.apiclasses.FrenReqStatus
+import com.sushobh.solidtext.apiclasses.FrenReqStatus.*
+import com.sushobh.solidtext.apiclasses.FrenReqStatus.Nothing
+import com.sushobh.solidtext.apiclasses.STFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.ETConnectionReq
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtFrenConnection
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConRepo
@@ -24,31 +25,13 @@ open class FriendsService(
     private val authService: AuthService
 ) {
 
-    data class FrenReqActionInput(val toUserId: BigInteger, val action: String)
 
-
-    sealed class FrenReqResult(val status: String?) {
-        data class RequestSent(val message: String? = null) : FrenReqResult(RequestSent::class.simpleName)
-        data object FriendAdded : FrenReqResult(FriendAdded::class.simpleName)
-        data class Failed(val message: String) : FrenReqResult(Failed::class.simpleName)
-    }
-
-    data class FrenSearchUserByNameInput(val userName: String)
-    data class FrenReqSendingAbility(val canSend: Boolean)
-
-
-    sealed class FrenSearchStatus(val status: String?) {
-        data object NotFound : FrenSearchStatus(NotFound::class.simpleName)
-        data class Found(val reqSendingAbility: FrenReqSendingAbility,val user : STUser) : FrenSearchStatus(Found::class.simpleName)
-    }
-
-
-    fun onFrenReqAction(actionInput: FrenReqActionInput, user: STUser): FrenReqResult {
+    fun onFrenReqAction(actionInput: FriendServiceClasses.FrenReqActionInput, user: STUser): FriendServiceClasses.FrenReqResult {
 
         val fromUserId = user.userId
         val toUserId = actionInput.toUserId
         if (areFriends(fromUserId, toUserId)) {
-            return FrenReqResult.Failed("Already friends")
+            return FriendServiceClasses.FrenReqResult.Failed("Already friends")
         }
         val existingConnectionRequest = etConReqRepo.getExistingConnectionRequest(user.userId, actionInput.toUserId)
         val existingConnectionRequestFromRecipient =
@@ -57,14 +40,14 @@ open class FriendsService(
         existingConnectionRequestFromRecipient?.let {
             when (frenReqStatusFromText(it.status)) {
                 Accepted -> {
-                    return FrenReqResult.Failed("Already friends")
+                    return FriendServiceClasses.FrenReqResult.Failed("Already friends")
                 }
 
                 Nothing -> {}
                 Refused -> {}
                 Sent -> {
                     addFriends(fromUserId, toUserId)
-                    return FrenReqResult.FriendAdded
+                    return FriendServiceClasses.FrenReqResult.FriendAdded
                 }
 
                 InActive -> {}
@@ -74,13 +57,13 @@ open class FriendsService(
         existingConnectionRequest?.let {
             when (frenReqStatusFromText(it.status)) {
                 Accepted -> {
-                    return FrenReqResult.Failed("Already friends")
+                    return FriendServiceClasses.FrenReqResult.Failed("Already friends")
                 }
 
                 Nothing -> {}
                 FrenReqStatus.Refused -> {}
                 Sent -> {
-                    return FrenReqResult.Failed("Friend request already pending")
+                    return FriendServiceClasses.FrenReqResult.Failed("Friend request already pending")
                 }
 
                 FrenReqStatus.InActive -> {}
@@ -88,7 +71,7 @@ open class FriendsService(
         }
         val newRequest = ETConnectionReq(dateUtil.getCurrentTime(), Sent.name!!, fromUserId, toUserId)
         etConReqRepo.save(newRequest)
-        return FrenReqResult.RequestSent("Request sent")
+        return FriendServiceClasses.FrenReqResult.RequestSent("Request sent")
     }
 
     private fun areFriends(id: BigInteger, id2: BigInteger): Boolean {
@@ -100,8 +83,8 @@ open class FriendsService(
 
     private fun addFriends(from: BigInteger, to: BigInteger) {
         val etCon = EtFrenConnection(dateUtil.getCurrentTime(), from, to)
-        etConReqRepo.deActivateRequest(FrenReqStatus.InActive.name!!, from, to)
-        etConReqRepo.deActivateRequest(FrenReqStatus.InActive.name, to, from)
+        etConReqRepo.deActivateRequest(InActive.name!!, from, to)
+        etConReqRepo.deActivateRequest(InActive.name!!, to, from)
         etConRepo.save(etCon)
     }
 
@@ -114,12 +97,15 @@ open class FriendsService(
         }
     }
 
-    suspend fun searchUserByName(frenSearchUserByNameInput: FrenSearchUserByNameInput, user: STUser): FrenSearchStatus {
+    suspend fun searchUserByName(frenSearchUserByNameInput: FriendServiceClasses.FrenSearchUserByNameInput, user: STUser): FriendServiceClasses.FrenSearchStatus {
         val searchedFriend = authService.getUserByUserName(frenSearchUserByNameInput.userName)
         searchedFriend?.let {
-            return FrenSearchStatus.Found(FrenReqSendingAbility(canFriendRequestBeSentToUser(searchedFriend, user)),searchedFriend)
+            return FriendServiceClasses.FrenSearchStatus.Found(
+                FriendServiceClasses.FrenReqSendingAbility(
+                    canFriendRequestBeSentToUser(searchedFriend, user)
+                ),searchedFriend)
         }
-        return FrenSearchStatus.NotFound
+        return FriendServiceClasses.FrenSearchStatus.NotFound
     }
 
 

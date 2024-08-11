@@ -1,10 +1,11 @@
 package com.sushobh.solidtext.friends.controller
 
+import com.sushobh.solidtext.apiclasses.FriendServiceClasses
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
 
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.FriendsService
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
+import com.sushobh.solidtext.apiclasses.STFrenRequest
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,20 +18,20 @@ import org.springframework.web.bind.annotation.RestController
 class FriendsController(private val friendsService: FriendsService, private val authService : AuthService) {
 
     @PostMapping("/frens/reqAction")
-    suspend fun frenReqAction(@RequestBody body : FriendsService.FrenReqActionInput,
-                           @RequestHeader headers: Map<String, String>
-    ): STResponse<FriendsService.FrenReqResult> {
-        return authService.getAuthUserChain<FriendsService.FrenReqActionInput,FriendsService.FrenReqResult>(headers,body)
+    suspend fun frenReqAction(@RequestBody body : FriendServiceClasses.FrenReqActionInput,
+                              @RequestHeader headers: Map<String, String>
+    ): STResponse<FriendServiceClasses.FrenReqResult> {
+        return authService.getAuthUserChain<FriendServiceClasses.FrenReqActionInput, FriendServiceClasses.FrenReqResult>(headers,body)
             .addItem { input, _ ->
                 STResponse(friendsService.onFrenReqAction(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
 
     @GetMapping("/frens/freReqs")
-    suspend fun getFrenReqs(@RequestBody body : FriendsService.FrenReqActionInput,
-                              @RequestHeader headers: Map<String, String>
-    ): STResponse<FriendsService.FrenReqResult> {
-        return authService.getAuthUserChain<FriendsService.FrenReqActionInput,FriendsService.FrenReqResult>(headers,body)
+    suspend fun getFrenReqs(@RequestBody body : FriendServiceClasses.FrenReqActionInput,
+                            @RequestHeader headers: Map<String, String>
+    ): STResponse<FriendServiceClasses.FrenReqResult> {
+        return authService.getAuthUserChain<FriendServiceClasses.FrenReqActionInput, FriendServiceClasses.FrenReqResult>(headers,body)
             .addItem { input, _ ->
                 STResponse(friendsService.onFrenReqAction(body,input.getExtra(EXTRA_USER)), null)
             }.next()
@@ -38,9 +39,9 @@ class FriendsController(private val friendsService: FriendsService, private val 
 
 
     @PostMapping("/frens/searchByUserName")
-    suspend fun searchUserByName(@RequestBody body : FriendsService.FrenSearchUserByNameInput,@RequestHeader headers: Map<String, String>) :
-            STResponse<FriendsService.FrenSearchStatus> {
-        return authService.getAuthUserChain<FriendsService.FrenSearchUserByNameInput,FriendsService.FrenSearchStatus>(headers,body)
+    suspend fun searchUserByName(@RequestBody body : FriendServiceClasses.FrenSearchUserByNameInput, @RequestHeader headers: Map<String, String>) :
+            STResponse<FriendServiceClasses.FrenSearchStatus> {
+        return authService.getAuthUserChain<FriendServiceClasses.FrenSearchUserByNameInput, FriendServiceClasses.FrenSearchStatus>(headers,body)
             .addItem { input, _ ->
                 STResponse(friendsService.searchUserByName(body,input.getExtra(EXTRA_USER)), null)
             }.next()

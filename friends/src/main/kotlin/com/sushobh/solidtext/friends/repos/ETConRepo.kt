@@ -1,6 +1,5 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends.repos
 
-import com.sushobh.solidtext.com.sushobh.solidtext.friends.api.STFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtConId
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtFrenConnection
 import org.springframework.data.jpa.repository.Query

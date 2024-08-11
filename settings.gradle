@@ -6,4 +6,5 @@ include 'auth'
 include 'common'
 include 'posts'
 include 'friends'
+include 'apiclasses'
 
