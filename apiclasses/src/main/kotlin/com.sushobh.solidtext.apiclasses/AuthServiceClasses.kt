@@ -46,7 +46,8 @@ class AuthServiceClasses {
 
 data class STUser(val userId : BigInteger,
                   val userName : String? = null,
-                  val profilePic1  : String? = null
+                  val profilePic1  : String? = null,
+                  val fullName : String? = null
                  )
 
 data class RespETUser(val emailId : String, val userName : String, val userId : BigInteger)

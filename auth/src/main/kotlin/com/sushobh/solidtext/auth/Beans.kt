@@ -20,6 +20,6 @@ open class Configuration {
 
     @Qualifier("userPropKeys")
     @Bean
-    open fun userPropKeys() = hashSetOf("profile_pic1","profile_pic2")
+    open fun userPropKeys() = hashSetOf("profile_pic1","fullName")
 
 }
