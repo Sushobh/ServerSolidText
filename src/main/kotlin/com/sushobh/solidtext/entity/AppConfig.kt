@@ -13,7 +13,8 @@ data class AppConfig (
     @JsonProperty("POST_TEXT_LENGTH") val postTextMaxLength : String = "200",
     @JsonProperty("POST_TEXT_MIN_LENGTH") val postTextMinLength : String = "50",
     @JsonProperty("CREATE_POST_URL") val createPostUrl : String = "$BASE_URL/posts/createPost",
-    @JsonProperty("URL_SEARCH_BY_USERNAME") val urlSearchByUsername : String = "$BASE_URL/frens/searchByUserName"
+    @JsonProperty("URL_SEARCH_BY_USERNAME") val urlSearchByUsername : String = "$BASE_URL/frens/searchByUserName",
+    @JsonProperty("URL_UPDATE_USER_KEY") val updateUserKey : String = "$BASE_URL/user/updateProperty"
 )
 
 

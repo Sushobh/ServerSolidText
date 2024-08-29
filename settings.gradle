@@ -7,4 +7,5 @@ include 'common'
 include 'posts'
 include 'friends'
 include 'apiclasses'
+include 'firebase-auth'
 

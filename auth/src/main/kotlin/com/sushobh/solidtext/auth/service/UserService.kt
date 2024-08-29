@@ -14,6 +14,7 @@ import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
 import com.sushobh.solidtext.apiclasses.RespETUser
 import com.sushobh.solidtext.auth.toStUser
 import common.util.time.SecondsExpirable
+import jakarta.persistence.EntityManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
@@ -31,6 +32,7 @@ internal class UserService internal constructor(
     private val passwordEncoder: BCryptPasswordEncoder,
     private val tokenService: TokenService,
     private val tokenPairRepo: ETUserTokenPairRepo,
+    private val entityManager: EntityManager,
     @Qualifier("userPropKeys") private val userPropKeys : Set<String>,
     @Qualifier("loginTokenConfig") private val loginTokenConfig: TokenService.TokenConfig
 ) {
@@ -142,9 +144,9 @@ internal class UserService internal constructor(
         if(!userPropKeys.contains(input.key) || input.value.orEmpty().length > USER_PROP_VALUE_MAX_LENGTH){
             return AuthServiceClasses.UpdateUserPropStatus.Failed("Invald key or value")
         }
-
         etUserRepo.updateUserProp(input.key,input.value.orEmpty(),extra.userId)
-        return AuthServiceClasses.UpdateUserPropStatus.Success
+        entityManager.clear()
+        return AuthServiceClasses.UpdateUserPropStatus.Success(getUserById(extra.userId))
     }
 
     fun getUserById(id : BigInteger) : STUser? {

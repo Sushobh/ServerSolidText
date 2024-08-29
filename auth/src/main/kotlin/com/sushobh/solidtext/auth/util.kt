@@ -25,6 +25,5 @@ internal fun <X, Y> getUserRequestChain(userService: UserService,body: X?, heade
 internal fun ETUser.toStUser() : STUser {
     val profilePic1 : String? = userProps?.get("profile_pic1")
     val fullName : String? = userProps?.get("fullName")
-
     return STUser(id,username,profilePic1 = profilePic1,fullName = fullName)
 }

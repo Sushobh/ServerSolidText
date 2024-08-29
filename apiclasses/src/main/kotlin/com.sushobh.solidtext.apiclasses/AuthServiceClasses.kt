@@ -38,7 +38,7 @@ class AuthServiceClasses {
     }
 
     sealed class UpdateUserPropStatus(val status : String?) {
-        data object Success : UpdateUserPropStatus(Success::class.simpleName)
+        data class Success(val user: STUser?) : UpdateUserPropStatus(Success::class.simpleName)
         data class Failed(val message : String? = null) : UpdateUserPropStatus(Failed::class.simpleName)
     }
 
