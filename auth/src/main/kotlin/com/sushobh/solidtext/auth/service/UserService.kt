@@ -1,8 +1,7 @@
 package com.sushobh.solidtext.auth.service
 
 import com.sushobh.common.util.DateUtil
-import com.sushobh.solidtext.apiclasses.AuthServiceClasses
-import com.sushobh.solidtext.apiclasses.STUser
+import com.sushobh.solidtext.apiclasses.*
 import com.sushobh.solidtext.auth.OTP_TYPE_SIGNUP
 import com.sushobh.solidtext.auth.SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS
 import com.sushobh.solidtext.auth.USER_PROP_VALUE_MAX_LENGTH
@@ -11,7 +10,6 @@ import com.sushobh.solidtext.auth.repository.ETPasswordRepo
 import com.sushobh.solidtext.auth.repository.ETUserRepo
 import com.sushobh.solidtext.auth.repository.ETUserTokenPairRepo
 import com.sushobh.solidtext.auth.repository.SignupAttemptRepo
-import com.sushobh.solidtext.apiclasses.RespETUser
 import com.sushobh.solidtext.auth.toStUser
 import common.util.time.SecondsExpirable
 import jakarta.persistence.EntityManager
@@ -44,18 +42,18 @@ internal class UserService internal constructor(
 
 
 
-    fun getUserByName(searchUserInput: AuthServiceClasses.SearchUserInput) : AuthServiceClasses.SearchUserStatus {
+    fun getUserByName(searchUserInput: AuthServiceInput.SearchUserInput) : AuthServiceOutput.SearchUserStatus {
         val etUser = etUserRepo.findUserByName(searchUserInput.userName)
         etUser?.let {
-            return AuthServiceClasses.SearchUserStatus.Found(it.toStUser())
+            return AuthServiceOutput.SearchUserStatus.Found(it.toStUser())
         }
-        return AuthServiceClasses.SearchUserStatus.UserNotFound
+        return AuthServiceOutput.SearchUserStatus.UserNotFound
     }
 
-    fun onSignupAttempt(input: AuthServiceClasses.SignupInput): AuthServiceClasses.SignupStatus {
+    fun onSignupAttempt(input: AuthServiceInput.SignupInput): AuthServiceOutput.SignupStatus {
         val doesUserExist = doesUserExist(input.email)
         if (doesUserExist) {
-            return AuthServiceClasses.SignupStatus.UserAlreadyExists
+            return AuthServiceOutput.SignupStatus.UserAlreadyExists
         } else {
             val sentOtp = otpService.sendOtp(OTP_TYPE_SIGNUP)
             sentOtp?.let {
@@ -67,24 +65,24 @@ internal class UserService internal constructor(
                         sentOtp.id
                     )
                 signupAttemptRepo.save(signupAttempt)
-                return AuthServiceClasses.SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
+                return AuthServiceOutput.SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
             }
-            return AuthServiceClasses.SignupStatus.Error
+            return AuthServiceOutput.SignupStatus.Error
         }
     }
 
-    fun validateOtp(otpValidateInput: AuthServiceClasses.OtpValidateInput): AuthServiceClasses.OtpValidateStatus {
+    fun validateOtp(otpValidateInput: AuthServiceInput.OtpValidateInput): AuthServiceOutput.OtpValidateStatus {
         val latestAttempt = signupAttemptRepo.findByOtpStringId(otpValidateInput.otpId)
         latestAttempt?.let {
             val hasExpired = dateUtil.hasExpired(SecondsExpirable(latestAttempt.time, SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS))
             if (hasExpired) {
-                return AuthServiceClasses.OtpValidateStatus.ExpiredRequest
+                return AuthServiceOutput.OtpValidateStatus.ExpiredRequest
             }
             latestAttempt.otpId?.let {
                 val sentOtp = otpService.getOtp(it)
                 sentOtp?.let {
                     if(otpValidateInput.otpId != sentOtp.stringid){
-                        return AuthServiceClasses.OtpValidateStatus.InvalidDetails
+                        return AuthServiceOutput.OtpValidateStatus.InvalidDetails
                     }
                     val time = dateUtil.getCurrentTime()
                     if (otpValidateInput.otpText == sentOtp.otp) {
@@ -95,15 +93,15 @@ internal class UserService internal constructor(
                             passwordId = etPassword.id, email = latestAttempt.email
                         )
                         etUserRepo.save(etUser)
-                        return AuthServiceClasses.OtpValidateStatus.Success
+                        return AuthServiceOutput.OtpValidateStatus.Success
                     }
                 }
             }
         }
-        return AuthServiceClasses.OtpValidateStatus.InvalidDetails
+        return AuthServiceOutput.OtpValidateStatus.InvalidDetails
     }
 
-    fun login(loginInput: AuthServiceClasses.LoginInput): AuthServiceClasses.LoginStatus {
+    fun login(loginInput: AuthServiceInput.LoginInput): AuthServiceOutput.LoginStatus {
         val etUser = etUserRepo.findByEmail(loginInput.email)
         etUser?.let {
             val etPassword = etPasswordRepo.findById(etUser.passwordId).getOrNull()
@@ -111,11 +109,11 @@ internal class UserService internal constructor(
                 if (passwordEncoder.matches(loginInput.password, etPassword.passwordText)) {
                     val token = tokenService.generateToken(loginTokenConfig)
                     tokenPairRepo.save(ETUserTokenPair(ETUserTokenPairId(etUser.id, token.id)))
-                    return AuthServiceClasses.LoginStatus.Success(token.tokenText)
+                    return AuthServiceOutput.LoginStatus.Success(token.tokenText)
                 }
             }
         }
-        return AuthServiceClasses.LoginStatus.InvalidCredentials
+        return AuthServiceOutput.LoginStatus.InvalidCredentials
     }
 
     internal fun getUserFromToken(tokenText: String): ETUser? {
@@ -128,29 +126,44 @@ internal class UserService internal constructor(
         }
     }
 
-    fun updateUserName(updateUserNameInput: AuthServiceClasses.UpdateUserNameInput, user: STUser) : AuthServiceClasses.UpdateUserNameStatus {
+    fun updateUserName(updateUserNameInput: AuthServiceInput.UpdateUserNameInput, user: STUser) : AuthServiceOutput.UpdateUserNameStatus {
         val etUser = etUserRepo.findById(user.userId).getOrNull()
         etUser?.let {
               etUserRepo.updateUserName(updateUserNameInput.newName,etUser.id)
               val newUserRow = etUserRepo.findById(user.userId).getOrNull()
               newUserRow?.let {
-                  return AuthServiceClasses.UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
+                  return AuthServiceOutput.UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
               }
         }
-        return AuthServiceClasses.UpdateUserNameStatus.Failed
+        return AuthServiceOutput.UpdateUserNameStatus.Failed
     }
 
-    fun updateUserProp(input: AuthServiceClasses.UserPropInput, extra: STUser) : AuthServiceClasses.UpdateUserPropStatus {
+    fun updateUserProp(input: AuthServiceInput.UserPropInput, extra: STUser) : AuthServiceOutput.UpdateUserPropStatus {
         if(!userPropKeys.contains(input.key) || input.value.orEmpty().length > USER_PROP_VALUE_MAX_LENGTH){
-            return AuthServiceClasses.UpdateUserPropStatus.Failed("Invald key or value")
+            return AuthServiceOutput.UpdateUserPropStatus.Failed("Invalid key or value")
         }
         etUserRepo.updateUserProp(input.key,input.value.orEmpty(),extra.userId)
         entityManager.clear()
-        return AuthServiceClasses.UpdateUserPropStatus.Success(getUserById(extra.userId))
+        return AuthServiceOutput.UpdateUserPropStatus.Success(getUserById(extra.userId))
     }
 
     fun getUserById(id : BigInteger) : STUser? {
         return this.etUserRepo.findById(id).getOrNull()?.toStUser()
+    }
+
+    fun getUserProps( extra: STUser): AuthServiceOutput.GetUserPropsStatus {
+          val user : ETUser? = this.etUserRepo.findById(extra.userId).getOrNull()
+          user?.let {
+              val listOfProps = ArrayList<UserProp>()
+              user.userProps?.keys?.forEach { key ->
+                  if(userPropKeys.contains(key)){
+                      listOfProps.add(UserProp(key,user.userProps.get(key),true))
+                  }
+              }
+              return AuthServiceOutput.GetUserPropsStatus.Success(listOfProps)
+          }
+
+        return AuthServiceOutput.GetUserPropsStatus.Failed("User not found")
     }
 
 

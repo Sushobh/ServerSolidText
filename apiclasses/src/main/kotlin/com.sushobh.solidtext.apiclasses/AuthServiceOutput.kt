@@ -2,13 +2,18 @@ package com.sushobh.solidtext.apiclasses
 
 import java.math.BigInteger
 
-class AuthServiceClasses {
+
+class AuthServiceInput {
     data class SearchUserInput(val userName : String)
     data class LoginInput(val email: String, val password: String)
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String, val otpId : String)
     data class UpdateUserNameInput(val newName : String)
     data class UserPropInput(val key : String, val value : String? = null)
+
+}
+
+class AuthServiceOutput {
     sealed class SignupStatus(val status : String?)  {
         data class OtpSent(val stringId : String) : SignupStatus(OtpSent::class.simpleName)
         data object UserAlreadyExists : SignupStatus(UserAlreadyExists::class.simpleName)
@@ -42,7 +47,14 @@ class AuthServiceClasses {
         data class Failed(val message : String? = null) : UpdateUserPropStatus(Failed::class.simpleName)
     }
 
+    sealed class GetUserPropsStatus(val status : String?) {
+        data class Success(val userProps : List<UserProp>) : GetUserPropsStatus(Success::class.simpleName)
+        data class Failed(val message : String? = null) : GetUserPropsStatus(Failed::class.simpleName)
+    }
+
 }
+
+data class UserProp(val key: String,val value: String?,val isEditableOnPhone : Boolean)
 
 data class STUser(val userId : BigInteger,
                   val userName : String? = null,

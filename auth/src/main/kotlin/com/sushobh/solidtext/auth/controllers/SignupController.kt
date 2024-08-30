@@ -1,6 +1,8 @@
 package com.sushobh.solidtext.auth.controllers
 
-import com.sushobh.solidtext.apiclasses.AuthServiceClasses
+import com.sushobh.solidtext.apiclasses.AuthServiceOutput
+import com.sushobh.solidtext.apiclasses.AuthServiceInput
+import com.sushobh.solidtext.apiclasses.STFrenRequest
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.getDefaultRequestChain
 import com.sushobh.solidtext.auth.getUserRequestChain
@@ -17,8 +19,8 @@ internal class SignupController(
 ) {
 
     @PostMapping("/public/signup")
-    suspend fun signup(@RequestBody body: AuthServiceClasses.SignupInput): STResponse<AuthServiceClasses.SignupStatus> {
-        return getDefaultRequestChain<AuthServiceClasses.SignupInput, AuthServiceClasses.SignupStatus>(body)
+    suspend fun signup(@RequestBody body: AuthServiceInput.SignupInput): STResponse<AuthServiceOutput.SignupStatus> {
+        return getDefaultRequestChain<AuthServiceInput.SignupInput, AuthServiceOutput.SignupStatus>(body)
             .addItem { input, chain ->
                 STResponse(
                     userService.onSignupAttempt(input.requestBody!!),
@@ -28,8 +30,8 @@ internal class SignupController(
     }
 
     @PostMapping("/public/otpValidate")
-    suspend fun otpValidate(@RequestBody body: AuthServiceClasses.OtpValidateInput): STResponse<AuthServiceClasses.OtpValidateStatus> {
-        return getDefaultRequestChain<AuthServiceClasses.OtpValidateInput, AuthServiceClasses.OtpValidateStatus>(body)
+    suspend fun otpValidate(@RequestBody body: AuthServiceInput.OtpValidateInput): STResponse<AuthServiceOutput.OtpValidateStatus> {
+        return getDefaultRequestChain<AuthServiceInput.OtpValidateInput, AuthServiceOutput.OtpValidateStatus>(body)
             .addItem { input, chain ->
                 STResponse(
                     userService.validateOtp(input.requestBody!!),
@@ -40,10 +42,10 @@ internal class SignupController(
 
     @PostMapping("/public/login")
     suspend fun login(
-        @RequestBody body: AuthServiceClasses.LoginInput,
+        @RequestBody body: AuthServiceInput.LoginInput,
         @RequestHeader headers: Map<String, String>
-    ): STResponse<AuthServiceClasses.LoginStatus> {
-        return getDefaultRequestChain<AuthServiceClasses.LoginInput, AuthServiceClasses.LoginStatus>(body, headers)
+    ): STResponse<AuthServiceOutput.LoginStatus> {
+        return getDefaultRequestChain<AuthServiceInput.LoginInput, AuthServiceOutput.LoginStatus>(body, headers)
             .addItem { input, chain ->
                 val result = userService.login(body)
                 STResponse(result, null)
@@ -51,20 +53,20 @@ internal class SignupController(
     }
 
     @PostMapping("/user/updateUserName")
-    suspend fun updateUserName(@RequestBody body : AuthServiceClasses.UpdateUserNameInput,
+    suspend fun updateUserName(@RequestBody body : AuthServiceInput.UpdateUserNameInput,
                                @RequestHeader headers: Map<String, String>
-    ): STResponse<AuthServiceClasses.UpdateUserNameStatus> {
-        return getUserRequestChain<AuthServiceClasses.UpdateUserNameInput, AuthServiceClasses.UpdateUserNameStatus>(userService,null, headers)
+    ): STResponse<AuthServiceOutput.UpdateUserNameStatus> {
+        return getUserRequestChain<AuthServiceInput.UpdateUserNameInput, AuthServiceOutput.UpdateUserNameStatus>(userService,null, headers)
             .addItem { input, _ ->
                 STResponse(userService.updateUserName(body,input.getExtra(EXTRA_USER)), null)
             }.next()
     }
 
     @PostMapping("/user/updateProperty")
-    suspend fun updateProperty(@RequestBody body : AuthServiceClasses.UserPropInput,
+    suspend fun updateProperty(@RequestBody body : AuthServiceInput.UserPropInput,
                                @RequestHeader headers: Map<String, String>
-    ): STResponse<AuthServiceClasses.UpdateUserPropStatus> {
-        return getUserRequestChain<AuthServiceClasses.UserPropInput, AuthServiceClasses.UpdateUserPropStatus>(userService,null, headers)
+    ): STResponse<AuthServiceOutput.UpdateUserPropStatus> {
+        return getUserRequestChain<AuthServiceInput.UserPropInput, AuthServiceOutput.UpdateUserPropStatus>(userService,null, headers)
             .addItem { input, _ ->
                 STResponse(userService.updateUserProp(body,input.getExtra(EXTRA_USER)), null)
             }.next()
@@ -72,13 +74,21 @@ internal class SignupController(
 
 
     @PostMapping("/user/searchUserByName")
-    suspend fun searchUserByName(@RequestBody body : AuthServiceClasses.SearchUserInput,
+    suspend fun searchUserByName(@RequestBody body : AuthServiceInput.SearchUserInput,
                                  @RequestHeader headers: Map<String, String>
-    ): STResponse<AuthServiceClasses.SearchUserStatus> {
-        return getUserRequestChain<AuthServiceClasses.SearchUserInput, AuthServiceClasses.SearchUserStatus>(userService,null, headers)
+    ): STResponse<AuthServiceOutput.SearchUserStatus> {
+        return getUserRequestChain<AuthServiceInput.SearchUserInput, AuthServiceOutput.SearchUserStatus>(userService,null, headers)
             .addItem { input, _ ->
                 STResponse(userService.getUserByName(body), null)
             }.next()
+    }
+
+    @GetMapping("/user/getUserProps")
+    suspend fun getUserProps(@RequestHeader headers: Map<String, String>) : STResponse<AuthServiceOutput.GetUserPropsStatus>{
+        return getUserRequestChain<Any,AuthServiceOutput.GetUserPropsStatus>(userService,Unit,headers)
+            .addItem { input, _ ->
+                STResponse(userService.getUserProps(input[EXTRA_USER]), null)
+            } .next()
     }
 
 }

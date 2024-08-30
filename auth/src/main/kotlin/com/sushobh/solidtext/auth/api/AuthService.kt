@@ -1,6 +1,7 @@
 package com.sushobh.solidtext.auth.api
 
-import com.sushobh.solidtext.apiclasses.AuthServiceClasses
+import com.sushobh.solidtext.apiclasses.AuthServiceOutput
+import com.sushobh.solidtext.apiclasses.AuthServiceInput
 
 import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.getUserRequestChain
@@ -21,11 +22,11 @@ class AuthService internal constructor(private val userService: UserService) {
     }
 
     suspend fun getUserByUserName(userName : String) : STUser? {
-        val status =  userService.getUserByName(AuthServiceClasses.SearchUserInput(userName))
+        val status =  userService.getUserByName(AuthServiceInput.SearchUserInput(userName))
         when(status){
-            AuthServiceClasses.SearchUserStatus.Failed -> return null
-            is AuthServiceClasses.SearchUserStatus.Found -> return status.user
-            AuthServiceClasses.SearchUserStatus.UserNotFound -> return null
+            AuthServiceOutput.SearchUserStatus.Failed -> return null
+            is AuthServiceOutput.SearchUserStatus.Found -> return status.user
+            AuthServiceOutput.SearchUserStatus.UserNotFound -> return null
         }
     }
 }
