@@ -4,10 +4,10 @@ import com.sushobh.solidtext.apiclasses.PostServiceClasses
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.api.AuthService
 import com.sushobh.solidtext.posts.PostsService
-import com.sushobh.solidtext.posts.api.STPost
-import com.sushobh.solidtext.posts.repos.PJPostFeedItem
+
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.*
+import java.math.BigInteger
 
 
 @RestController
@@ -24,8 +24,8 @@ internal class PostsController(private val authService : AuthService,private val
     }
 
     @GetMapping("/posts/feed")
-    suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<List<STPost>>{
-        return authService.getAuthUserChain<Any,List<STPost>>(headers,Unit)
+    suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<List<PostServiceClasses.STPost>>{
+        return authService.getAuthUserChain<Any,List<PostServiceClasses.STPost>>(headers,Unit)
             .addItem { input, _ ->
                 STResponse(postsService.getPostFeed(input[EXTRA_USER]), null)
             } .next()
@@ -40,5 +40,17 @@ internal class PostsController(private val authService : AuthService,private val
                 STResponse(resp,null)
             }.next()
     }
+
+
+    @GetMapping("/posts/getUserPosts")
+    suspend fun getUserProps(@RequestHeader headers: Map<String, String>, @RequestParam("lastItem") itemId : BigInteger?) : STResponse<PostServiceClasses.GetUserPostsStatus>{
+        return authService.getAuthUserChain<Any,PostServiceClasses.GetUserPostsStatus>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(postsService.getUserPosts(input[EXTRA_USER],itemId), null)
+            } .next()
+    }
+
+
+
 
 }

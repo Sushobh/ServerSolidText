@@ -16,10 +16,16 @@ open class Configuration {
 
     @Qualifier("loginTokenConfig")
     @Bean
-    open fun loginTokenConfig() = TokenService.TokenConfig(TOKEN_USER_LOGIN, 1L, ChronoUnit.HOURS)
+    open fun loginTokenConfig() = TokenService.TokenConfig(TOKEN_USER_LOGIN, 168L, ChronoUnit.HOURS)
 
     @Qualifier("userPropKeys")
     @Bean
     open fun userPropKeys() = hashSetOf("profile_pic1","fullName")
+
+    @Bean
+    open fun postsConfig() = PostsConfig(5)
+
+
+    data class PostsConfig(val limitForUserPosts : Int)
 
 }

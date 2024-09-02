@@ -1,6 +1,6 @@
 package com.sushobh.solidtext.posts.repos
 
-import com.sushobh.solidtext.posts.api.STPost
+
 import java.math.BigInteger
 import java.time.Instant
 

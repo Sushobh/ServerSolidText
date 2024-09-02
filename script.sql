@@ -9,9 +9,6 @@ create table connection_request
             primary key
 );
 
-alter table connection_request
-    owner to postgres;
-
 create table login_attempt
 (
     id    bigint not null
@@ -20,9 +17,6 @@ create table login_attempt
     email text   not null,
     pwd   text   not null
 );
-
-alter table login_attempt
-    owner to postgres;
 
 create table otp
 (
@@ -36,9 +30,6 @@ create table otp
     stringid     text   default uuid_generate_v4()                         not null
 );
 
-alter table otp
-    owner to postgres;
-
 create table signup_attempt
 (
     id     bigserial
@@ -51,9 +42,6 @@ create table signup_attempt
             references otp
 );
 
-alter table signup_attempt
-    owner to postgres;
-
 create table token
 (
     id          bigint                   not null
@@ -65,9 +53,6 @@ create table token
     expiry_unit text                     not null
 );
 
-alter table token
-    owner to postgres;
-
 create table user_status
 (
     id      bigint                   not null,
@@ -77,9 +62,6 @@ create table user_status
     primary key (id, user_id)
 );
 
-alter table user_status
-    owner to postgres;
-
 create table password
 (
     id            bigint                   not null
@@ -87,9 +69,6 @@ create table password
     time          timestamp with time zone not null,
     password_text text                     not null
 );
-
-alter table password
-    owner to postgres;
 
 create table st_user
 (
@@ -109,9 +88,6 @@ create table st_user
     user_props  jsonb
 );
 
-alter table st_user
-    owner to postgres;
-
 create table picture
 (
     id   bigint                   not null
@@ -120,18 +96,12 @@ create table picture
     time timestamp with time zone not null
 );
 
-alter table picture
-    owner to postgres;
-
 create table user_token_pair
 (
     userid  bigint not null,
     tokenid bigint not null,
     primary key (userid, tokenid)
 );
-
-alter table user_token_pair
-    owner to postgres;
 
 create table post
 (
@@ -146,8 +116,8 @@ create table post
     time       timestamp with time zone
 );
 
-alter table post
-    owner to postgres;
+create index post_by_user_id_id_index
+    on post (by_user_id asc, id desc);
 
 create table fren_connection
 (
@@ -155,9 +125,6 @@ create table fren_connection
     to_user   bigint,
     time      timestamp with time zone
 );
-
-alter table fren_connection
-    owner to postgres;
 
 create table post_like
 (
@@ -168,9 +135,6 @@ create table post_like
         primary key (post_id, user_id)
 );
 
-alter table post_like
-    owner to postgres;
-
 create view active_fren_connection_requests(time, status, from_user, to_user, id) as
 SELECT connection_request."time",
        connection_request.status,
@@ -180,9 +144,6 @@ SELECT connection_request."time",
 FROM connection_request
 WHERE connection_request.status <> 'InActive'::text;
 
-alter table active_fren_connection_requests
-    owner to postgres;
-
 create view fren_requests_by_user(senttime, username, receiver_id, sender_id) as
 SELECT cr."time"    AS senttime,
        st_user.username,
@@ -190,9 +151,6 @@ SELECT cr."time"    AS senttime,
        cr.from_user AS sender_id
 FROM st_user
          JOIN active_fren_connection_requests cr ON st_user.id = cr.to_user;
-
-alter table fren_requests_by_user
-    owner to postgres;
 
 create function uuid_nil() returns uuid
     immutable
@@ -206,8 +164,6 @@ begin
 end;
 $$;
 
-alter function uuid_nil() owner to postgres;
-
 create function uuid_ns_dns() returns uuid
     immutable
     strict
@@ -219,8 +175,6 @@ begin
 -- missing source code
 end;
 $$;
-
-alter function uuid_ns_dns() owner to postgres;
 
 create function uuid_ns_url() returns uuid
     immutable
@@ -234,8 +188,6 @@ begin
 end;
 $$;
 
-alter function uuid_ns_url() owner to postgres;
-
 create function uuid_ns_oid() returns uuid
     immutable
     strict
@@ -247,8 +199,6 @@ begin
 -- missing source code
 end;
 $$;
-
-alter function uuid_ns_oid() owner to postgres;
 
 create function uuid_ns_x500() returns uuid
     immutable
@@ -262,8 +212,6 @@ begin
 end;
 $$;
 
-alter function uuid_ns_x500() owner to postgres;
-
 create function uuid_generate_v1() returns uuid
     strict
     parallel safe
@@ -275,8 +223,6 @@ begin
 end;
 $$;
 
-alter function uuid_generate_v1() owner to postgres;
-
 create function uuid_generate_v1mc() returns uuid
     strict
     parallel safe
@@ -287,8 +233,6 @@ begin
 -- missing source code
 end;
 $$;
-
-alter function uuid_generate_v1mc() owner to postgres;
 
 create function uuid_generate_v3(namespace uuid, name text) returns uuid
     immutable
@@ -302,8 +246,6 @@ begin
 end;
 $$;
 
-alter function uuid_generate_v3(uuid, text) owner to postgres;
-
 create function uuid_generate_v4() returns uuid
     strict
     parallel safe
@@ -314,8 +256,6 @@ begin
 -- missing source code
 end;
 $$;
-
-alter function uuid_generate_v4() owner to postgres;
 
 create function uuid_generate_v5(namespace uuid, name text) returns uuid
     immutable
@@ -328,8 +268,6 @@ begin
 -- missing source code
 end;
 $$;
-
-alter function uuid_generate_v5(uuid, text) owner to postgres;
 
 create function getpostfeed4(foruser numeric, howmany integer)
     returns TABLE(id integer, byuser integer, addedtime timestamp with time zone, posttext text, status text)
@@ -348,7 +286,4 @@ $$
     ORDER BY id DESC
     LIMIT howMany;
 $$;
-
-alter function getpostfeed4(numeric, integer) owner to postgres;
-
 

@@ -52,6 +52,7 @@ class AuthServiceOutput {
         data class Failed(val message : String? = null) : GetUserPropsStatus(Failed::class.simpleName)
     }
 
+
 }
 
 data class UserProp(val key: String,val value: String?,val isEditableOnPhone : Boolean)
