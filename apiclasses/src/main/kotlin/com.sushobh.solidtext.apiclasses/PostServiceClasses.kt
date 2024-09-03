@@ -21,7 +21,7 @@ class PostServiceClasses {
 
 
     sealed class GetUserPostsStatus(val status : String?){
-        data class Success(val userProps : List<STPost>) : GetUserPostsStatus(Success::class.simpleName)
+        data class Success(val userPosts : List<STPost>) : GetUserPostsStatus(Success::class.simpleName)
         data class Failed(val message : String? = null) : GetUserPostsStatus(Failed::class.simpleName)
     }
 

@@ -15,7 +15,8 @@ data class AppConfig (
     @JsonProperty("CREATE_POST_URL") val createPostUrl : String = "$BASE_URL/posts/createPost",
     @JsonProperty("URL_SEARCH_BY_USERNAME") val urlSearchByUsername : String = "$BASE_URL/frens/searchByUserName",
     @JsonProperty("URL_UPDATE_USER_KEY") val updateUserKey : String = "$BASE_URL/user/updateProperty",
-    @JsonProperty("URL_GET_USER_PROPS") val getUserProps : String = "$BASE_URL/user/getUserProps"
+    @JsonProperty("URL_GET_USER_PROPS") val getUserProps : String = "$BASE_URL/user/getUserProps",
+    @JsonProperty("URL_GET_USER_POSTS") val post : String = "$BASE_URL/posts/getUserPosts"
 )
 
 
