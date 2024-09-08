@@ -32,4 +32,15 @@ interface STFrenRequest {
       val receiverId : BigInteger
       val userName : String
       val senderId : BigInteger
+
+}
+
+interface STSentFrenRequest  {
+    val req : STFrenRequest?
+    val receiverUser : STUser?
+}
+
+interface STReceivedFrenRequest  {
+    val senderUser : STUser?
+    val req : STFrenRequest?
 }

@@ -1,19 +1,19 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends
 
 import com.sushobh.common.util.DateUtil
-import com.sushobh.solidtext.apiclasses.FriendServiceClasses
-import com.sushobh.solidtext.apiclasses.STUser
+import com.sushobh.solidtext.apiclasses.*
 import com.sushobh.solidtext.auth.api.AuthService
-import com.sushobh.solidtext.apiclasses.FrenReqStatus
 import com.sushobh.solidtext.apiclasses.FrenReqStatus.*
 import com.sushobh.solidtext.apiclasses.FrenReqStatus.Nothing
-import com.sushobh.solidtext.apiclasses.STFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.ETConnectionReq
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.EtFrenConnection
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConRepo
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.repos.ETConReqRepo
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
+
 import java.math.BigInteger
+import java.time.Instant
 
 //TODO making adding friends transactional
 //TODO make view match with the repository
@@ -114,12 +114,27 @@ open class FriendsService(
         return !areFriends
     }
 
-    fun getSentRequests(user : STUser): List<STFrenRequest> {
-        return etConReqRepo.getSentRequests(user.userId)
+    suspend fun getSentRequests(user : STUser): List<STSentFrenRequest> {
+
+        val list =  etConReqRepo.getSentRequests(user.userId).map { req ->
+            return@map object : STSentFrenRequest {
+                override val req: STFrenRequest = req
+                override val receiverUser: STUser? = runBlocking { authService.getUserByid(req.receiverId) }
+            }
+        }
+
+        return list
     }
 
-    fun getReceivedRequests(user: STUser): List<STFrenRequest>? {
-         return etConReqRepo.getReceivedRequests(user.userId)
+    fun getReceivedRequests(user: STUser): List<STReceivedFrenRequest> {
+
+        val list =  etConReqRepo.getReceivedRequests(user.userId).map { req ->
+            return@map object : STReceivedFrenRequest {
+                override val req: STFrenRequest = req
+                override val senderUser: STUser? = runBlocking { authService.getUserByid(req.senderId) }
+            }
+        }
+        return list
     }
 
 }
