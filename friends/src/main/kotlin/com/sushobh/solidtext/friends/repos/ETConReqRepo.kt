@@ -16,12 +16,19 @@ interface ETConReqRepo : CrudRepository<ETConnectionReq,BigInteger> {
     @Transactional
     @Modifying
     @Query("update connection_request set status = ?1 where from_user = ?2 and to_user = ?3", nativeQuery = true)
-    fun deActivateRequest(status : String, fromId : BigInteger, toId : BigInteger)
+    fun updateStatusOfRequest(status : String, fromId : BigInteger, toId : BigInteger)
 
-    @Query("select *from fren_requests_by_user where sender_id = ?1", nativeQuery = true)
-    fun getSentRequests(from : BigInteger) : List<STFrenRequest>
 
-    @Query("select *from fren_requests_by_user where receiver_id = ?1", nativeQuery = true)
-    fun getReceivedRequests(to : BigInteger) : List<STFrenRequest>
+    @Query("SELECT cr.time   AS sentTime,\n" +
+            "       cr.from_user AS senderId,\n" +
+            "       cr.to_user   AS receiverId\n" +
+            "FROM connection_request cr where cr.from_user = ?1 and cr.status = ?2", nativeQuery = true)
+    fun getSentFrenRequestsByUserForStatus(from : BigInteger,status : String) : List<STFrenRequest>
+
+    @Query("SELECT cr.time   AS sentTime,\n" +
+            "       cr.from_user AS senderId,\n" +
+            "       cr.to_user   AS receiverId\n" +
+            "FROM connection_request cr where cr.to_user = ?1 and cr.status = ?2", nativeQuery = true)
+    fun getReceiveRequestsByUserForStatus(to : BigInteger,status : String): List<STFrenRequest>
 
 }
