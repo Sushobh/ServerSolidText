@@ -10,6 +10,7 @@ class FriendServiceClasses {
         data object FriendAdded : FrenReqActionResult(FriendAdded::class.simpleName)
         data class Failed(val message: String) : FrenReqActionResult(Failed::class.simpleName)
         data class Refused(val message : String) : FrenReqActionResult(Refused::class.simpleName)
+        data object Cancelled : FrenReqActionResult(Cancelled::class.simpleName)
     }
 
     data class FrenSearchUserByNameInput(val userName: String)
@@ -33,6 +34,7 @@ sealed class FrenReqAction {
     object Send : FrenReqAction()
     object Refuse : FrenReqAction()
     object Accept : FrenReqAction()
+    object CancelRequest : FrenReqAction()
     object Nothing : FrenReqAction()
 }
 

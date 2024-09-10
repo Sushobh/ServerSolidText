@@ -43,19 +43,50 @@ class FriendRequestHandlerImpl(
     ): FriendServiceClasses.FrenReqActionResult {
 
 
-        when (actionInput.action.toFrenReqAction()) {
-            FrenReqAction.Accept -> return handleAccept(actionInput, user)
-            FrenReqAction.Nothing -> return FriendServiceClasses.FrenReqActionResult.Failed("Invalid friend request action.")
+        return when (actionInput.action.toFrenReqAction()) {
+            FrenReqAction.Accept -> handleAccept(actionInput, user)
+            FrenReqAction.Nothing -> FriendServiceClasses.FrenReqActionResult.Failed("Invalid friend request action.")
             FrenReqAction.Refuse -> {
-                return handleRefuseRequest(actionInput, user)
+                handleRefuseRequest(actionInput, user)
+            }
+
+            FrenReqAction.CancelRequest -> {
+                cancelRequest(actionInput, user)
             }
 
             FrenReqAction.Send -> {
-                return handleSendRequest(actionInput, user)
+                handleSendRequest(actionInput, user)
             }
         }
     }
 
+
+    suspend fun cancelRequest(
+        actionInput: FriendServiceClasses.FrenReqActionInput,
+        user: STUser
+    ): FriendServiceClasses.FrenReqActionResult {
+        val request = actionInput.requestId?.let { etConReqRepo.findById(it).getOrNull() }
+        request?.let {
+            if(request.fromUserId != user.userId){
+                return FriendServiceClasses.FrenReqActionResult.Failed("Request does not belong to the user")
+            }
+            when(request.status.frenReqStatusFromText()){
+                Accepted -> {}
+                InActive -> {}
+                Nothing -> {
+                    cancelRequest(user.userId,request.toUserid)
+                    return FriendServiceClasses.FrenReqActionResult.Cancelled
+                }
+                Refused -> {}
+                Sent -> {
+                    cancelRequest(user.userId,request.toUserid)
+                    return FriendServiceClasses.FrenReqActionResult.Cancelled
+                }
+            }
+        }
+        request?.fromUserId?.let { cancelRequest(it, actionInput.toUserId) }
+        return FriendServiceClasses.FrenReqActionResult.Failed("Invalid state")
+    }
 
     suspend fun handleRefuseRequest(
         actionInput: FriendServiceClasses.FrenReqActionInput,
@@ -64,6 +95,9 @@ class FriendRequestHandlerImpl(
         val request = actionInput.requestId?.let { etConReqRepo.findById(it).getOrNull() }
 
         request?.let {
+            if(request.toUserid != user.userId){
+                return FriendServiceClasses.FrenReqActionResult.Failed("Request does not belong to the user")
+            }
             val status = it.status.frenReqStatusFromText()
             val fromUserId = request.fromUserId
             val toUserId = request.toUserid
@@ -130,8 +164,6 @@ class FriendRequestHandlerImpl(
     }
 
 
-
-
     suspend fun handleSendRequest(
         actionInput: FriendServiceClasses.FrenReqActionInput,
         user: STUser
@@ -190,6 +222,11 @@ class FriendRequestHandlerImpl(
         etConReqRepo.save(newRequest)
         return FriendServiceClasses.FrenReqActionResult.RequestSent("Request sent")
     }
+
+    private fun cancelRequest(from: BigInteger, to: BigInteger) {
+        etConReqRepo.updateStatusOfRequest(InActive.name!!, from, to)
+    }
+
 
     private fun refuseRequest(from: BigInteger, to: BigInteger) {
         etConReqRepo.updateStatusOfRequest(Refused.name!!, from, to)
