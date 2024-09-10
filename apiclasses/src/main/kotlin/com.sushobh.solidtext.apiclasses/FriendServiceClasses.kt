@@ -36,19 +36,33 @@ sealed class FrenReqAction {
     object Nothing : FrenReqAction()
 }
 
-interface STFrenRequest {
+
+
+sealed class SentFriendRequestListStatus(var status : String) {
+    data object Error : SentFriendRequestListStatus(Error::class.simpleName!!)
+    data class Success(val reqs : List<ISTSentFrenRequest>) : SentFriendRequestListStatus(Success::class.simpleName!!)
+}
+
+sealed class ReceivedFriendRequestListStatus(var status : String) {
+    data object Error : SentFriendRequestListStatus(Error::class.simpleName!!)
+    data class Success(val reqs : List<ISTReceivedFrenRequest>) : ReceivedFriendRequestListStatus(Success::class.simpleName!!)
+}
+
+
+interface ISTFrenRequest {
       val sentTime : Instant
       val receiverId : BigInteger
       val senderId : BigInteger
 
 }
 
-interface STSentFrenRequest  {
-    val req : STFrenRequest?
+
+interface ISTSentFrenRequest  {
+    val req : ISTFrenRequest?
     val receiverUser : STUser?
 }
 
-interface STReceivedFrenRequest  {
+interface ISTReceivedFrenRequest  {
     val senderUser : STUser?
-    val req : STFrenRequest?
+    val req : ISTFrenRequest?
 }

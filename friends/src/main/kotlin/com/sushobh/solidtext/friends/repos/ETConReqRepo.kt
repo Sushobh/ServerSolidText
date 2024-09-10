@@ -1,6 +1,6 @@
 package com.sushobh.solidtext.com.sushobh.solidtext.friends.repos
 
-import com.sushobh.solidtext.apiclasses.STFrenRequest
+import com.sushobh.solidtext.apiclasses.ISTFrenRequest
 import com.sushobh.solidtext.com.sushobh.solidtext.friends.entity.ETConnectionReq
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -23,12 +23,12 @@ interface ETConReqRepo : CrudRepository<ETConnectionReq,BigInteger> {
             "       cr.from_user AS senderId,\n" +
             "       cr.to_user   AS receiverId\n" +
             "FROM connection_request cr where cr.from_user = ?1 and cr.status = ?2", nativeQuery = true)
-    fun getSentFrenRequestsByUserForStatus(from : BigInteger,status : String) : List<STFrenRequest>
+    fun getSentFrenRequestsByUserForStatus(from : BigInteger,status : String) : List<ISTFrenRequest>
 
     @Query("SELECT cr.time   AS sentTime,\n" +
             "       cr.from_user AS senderId,\n" +
             "       cr.to_user   AS receiverId\n" +
             "FROM connection_request cr where cr.to_user = ?1 and cr.status = ?2", nativeQuery = true)
-    fun getReceiveRequestsByUserForStatus(to : BigInteger,status : String): List<STFrenRequest>
+    fun getReceiveRequestsByUserForStatus(to : BigInteger,status : String): List<ISTFrenRequest>
 
 }

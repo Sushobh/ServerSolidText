@@ -10,39 +10,42 @@ import org.springframework.stereotype.Service
 
 
 interface FriendRequestLister {
-    suspend fun getSentRequests(user : STUser): List<STSentFrenRequest>
-    suspend fun getReceivedRequests(user: STUser): List<STReceivedFrenRequest>
+    suspend fun getSentRequests(user : STUser): SentFriendRequestListStatus
+    suspend fun getReceivedRequests(user: STUser): ReceivedFriendRequestListStatus
 }
 
 
 
 @Service
-class FriendRequestListerImpl(private val dateUtil: DateUtil,
+class FriendRequestListerImpl(
                               private val etConReqRepo: ETConReqRepo,
-                              private val etConRepo: ETConRepo,
                               private val authService: AuthService
 )  : FriendRequestLister {
-    override suspend fun getSentRequests(user : STUser): List<STSentFrenRequest> {
+
+
+
+
+    override suspend fun getSentRequests(user : STUser): SentFriendRequestListStatus {
 
         val list =  etConReqRepo.getSentFrenRequestsByUserForStatus(user.userId,FrenReqStatus.Sent.name!!).map { req ->
-            return@map object : STSentFrenRequest {
-                override val req: STFrenRequest = req
+            return@map object : ISTSentFrenRequest {
+                override val req: ISTFrenRequest = req
                 override val receiverUser: STUser? = runBlocking { authService.getUserByid(req.receiverId) }
             }
         }
 
-        return list
+        return SentFriendRequestListStatus.Success(list)
     }
 
-    override suspend fun getReceivedRequests(user: STUser): List<STReceivedFrenRequest> {
+    override suspend fun getReceivedRequests(user: STUser): ReceivedFriendRequestListStatus {
 
         val list =  etConReqRepo.getReceiveRequestsByUserForStatus(user.userId,FrenReqStatus.Sent.name!!).map { req ->
-            return@map object : STReceivedFrenRequest {
-                override val req: STFrenRequest = req
+            return@map object : ISTReceivedFrenRequest {
+                override val req: ISTFrenRequest = req
                 override val senderUser: STUser? = runBlocking { authService.getUserByid(req.senderId) }
             }
         }
-        return list
+        return ReceivedFriendRequestListStatus.Success(list)
     }
 
 }

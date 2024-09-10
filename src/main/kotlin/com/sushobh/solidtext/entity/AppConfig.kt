@@ -16,7 +16,9 @@ data class AppConfig (
     @JsonProperty("URL_SEARCH_BY_USERNAME") val urlSearchByUsername : String = "$BASE_URL/frens/searchByUserName",
     @JsonProperty("URL_UPDATE_USER_KEY") val updateUserKey : String = "$BASE_URL/user/updateProperty",
     @JsonProperty("URL_GET_USER_PROPS") val getUserProps : String = "$BASE_URL/user/getUserProps",
-    @JsonProperty("URL_GET_USER_POSTS") val post : String = "$BASE_URL/posts/getUserPosts"
+    @JsonProperty("URL_GET_USER_POSTS") val post : String = "$BASE_URL/posts/getUserPosts",
+    @JsonProperty("URL_SENT_FREN_REQ_LIST") val sentFrenReqs  : String = "$BASE_URL/frens/sentFriendRequests",
+    @JsonProperty("URL_RECEIVED_FREN_REQ_LIST") val receivedFrenReqs  : String = "$BASE_URL/frens/receivedRequests"
 )
 
 

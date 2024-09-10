@@ -2,7 +2,6 @@ package com.sushobh.solidtext.auth.controllers
 
 import com.sushobh.solidtext.apiclasses.AuthServiceOutput
 import com.sushobh.solidtext.apiclasses.AuthServiceInput
-import com.sushobh.solidtext.apiclasses.STFrenRequest
 import com.sushobh.solidtext.auth.EXTRA_USER
 import com.sushobh.solidtext.auth.getDefaultRequestChain
 import com.sushobh.solidtext.auth.getUserRequestChain
