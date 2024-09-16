@@ -1,10 +1,16 @@
 package com.sushobh.solidtext.entity
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.net.DatagramSocket
+import java.net.InetAddress
 
 
-
-const val BASE_URL = "http://10.0.2.2:8080"
+val BASE_URL : String by lazy {
+   DatagramSocket().use { socket ->
+        socket.connect(InetAddress.getByName("8.8.8.8"), 10002)
+        "http://"+socket.localAddress.hostAddress+":8080"
+    }
+}
 
 data class AppConfig (
     @JsonProperty("SIGNUP_URL") val signupUrl : String = "$BASE_URL/public/signup",
