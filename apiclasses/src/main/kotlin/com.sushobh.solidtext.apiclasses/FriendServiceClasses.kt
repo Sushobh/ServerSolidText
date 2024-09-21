@@ -5,6 +5,7 @@ import java.time.Instant
 
 class FriendServiceClasses {
     data class FrenReqActionInput(val toUserId: BigInteger, val requestId : BigInteger? = null,val action: String)
+
     sealed class FrenReqActionResult(val status: String?) {
         data class RequestSent(val message: String? = null) : FrenReqActionResult(RequestSent::class.simpleName)
         data object FriendAdded : FrenReqActionResult(FriendAdded::class.simpleName)
@@ -55,7 +56,7 @@ interface ISTFrenRequest {
       val sentTime : Instant
       val receiverId : BigInteger
       val senderId : BigInteger
-
+      val id : BigInteger
 }
 
 

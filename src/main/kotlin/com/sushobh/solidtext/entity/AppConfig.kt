@@ -24,7 +24,8 @@ data class AppConfig (
     @JsonProperty("URL_GET_USER_PROPS") val getUserProps : String = "$BASE_URL/user/getUserProps",
     @JsonProperty("URL_GET_USER_POSTS") val post : String = "$BASE_URL/posts/getUserPosts",
     @JsonProperty("URL_SENT_FREN_REQ_LIST") val sentFrenReqs  : String = "$BASE_URL/frens/sentFriendRequests",
-    @JsonProperty("URL_RECEIVED_FREN_REQ_LIST") val receivedFrenReqs  : String = "$BASE_URL/frens/receivedRequests"
+    @JsonProperty("URL_RECEIVED_FREN_REQ_LIST") val receivedFrenReqs  : String = "$BASE_URL/frens/receivedRequests",
+    @JsonProperty("URL_CANCEL_FREN_REQ") val cancelFrenReq  : String = "$BASE_URL/frens/reqAction"
 )
 
 
