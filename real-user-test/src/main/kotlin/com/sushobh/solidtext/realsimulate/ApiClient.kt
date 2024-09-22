@@ -1,4 +1,4 @@
-package com.sushobh
+package com.sushobh.com.sushobh.realusertests
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -11,6 +11,7 @@ val client = HttpClient(CIO) {
         json(Json {
             prettyPrint = true
             isLenient = true
+            ignoreUnknownKeys = true
         })
     }
 }

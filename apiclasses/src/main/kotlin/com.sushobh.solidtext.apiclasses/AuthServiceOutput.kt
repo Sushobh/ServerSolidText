@@ -10,6 +10,7 @@ class AuthServiceInput {
     data class LoginInput(val email: String, val password: String)
     @Serializable
     data class SignupInput(val email: String, val password: String)
+    @Serializable
     data class OtpValidateInput(val otpText: String, val otpId : String)
     data class UpdateUserNameInput(val newName : String)
     data class UserPropInput(val key : String, val value : String? = null)

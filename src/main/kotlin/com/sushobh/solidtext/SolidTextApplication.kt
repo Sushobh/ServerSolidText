@@ -15,6 +15,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 class SolidTextApplication
 
 fun main(args: Array<String>) {
-
 	runApplication<SolidTextApplication>(*args)
 }
