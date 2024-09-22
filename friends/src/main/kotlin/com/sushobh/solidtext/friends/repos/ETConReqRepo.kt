@@ -19,13 +19,13 @@ interface ETConReqRepo : CrudRepository<ETConnectionReq,BigInteger> {
     fun updateStatusOfRequest(status : String, fromId : BigInteger, toId : BigInteger)
 
 
-    @Query("SELECT cr.time   AS sentTime,\n" +
+    @Query("SELECT id,cr.time   AS sentTime,\n" +
             "       cr.from_user AS senderId,\n" +
             "       cr.to_user   AS receiverId\n" +
             "FROM connection_request cr where cr.from_user = ?1 and cr.status = ?2", nativeQuery = true)
     fun getSentFrenRequestsByUserForStatus(from : BigInteger,status : String) : List<ISTFrenRequest>
 
-    @Query("SELECT cr.time   AS sentTime,\n" +
+    @Query("SELECT id,cr.time   AS sentTime,\n" +
             "       cr.from_user AS senderId,\n" +
             "       cr.to_user   AS receiverId\n" +
             "FROM connection_request cr where cr.to_user = ?1 and cr.status = ?2", nativeQuery = true)

@@ -1,11 +1,14 @@
 package com.sushobh.solidtext.apiclasses
 
+import kotlinx.serialization.Serializable
 import java.math.BigInteger
 
 
 class AuthServiceInput {
     data class SearchUserInput(val userName : String)
+    @Serializable
     data class LoginInput(val email: String, val password: String)
+    @Serializable
     data class SignupInput(val email: String, val password: String)
     data class OtpValidateInput(val otpText: String, val otpId : String)
     data class UpdateUserNameInput(val newName : String)
