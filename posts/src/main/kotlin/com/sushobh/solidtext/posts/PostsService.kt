@@ -31,7 +31,7 @@ internal class PostsService(
         }
         val etPost = ETPost(postText = postText, status = "", time = dateUtil.getCurrentTime(), byUserId = user.userId)
         etPostRepository.save(etPost)
-        return PostServiceClasses.CreatePostStatus.Success
+        return PostServiceClasses.CreatePostStatus.Success()
     }
 
 
@@ -60,9 +60,9 @@ internal class PostsService(
             } else {
                 etPostLikeRepo.deleteById(ETPostLikeId(userId = user.userId, postId = postLikeInput.postId))
             }
-            return PostServiceClasses.PostLikeStatus.Success
+            return PostServiceClasses.PostLikeStatus.Success()
         } catch (e: Exception) {
-            return PostServiceClasses.PostLikeStatus.Failed
+            return PostServiceClasses.PostLikeStatus.Failed()
         }
 
     }

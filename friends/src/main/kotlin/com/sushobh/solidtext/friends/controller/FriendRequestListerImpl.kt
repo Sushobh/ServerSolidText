@@ -27,7 +27,7 @@ class FriendRequestListerImpl(
 
     override suspend fun getSentRequests(user : STUser): SentFriendRequestListStatus {
 
-        val list =  etConReqRepo.getSentFrenRequestsByUserForStatus(user.userId,FrenReqStatus.Sent.name!!).map { req ->
+        val list =  etConReqRepo.getSentFrenRequestsByUserForStatus(user.userId,FrenReqStatus.Sent().name!!).map { req ->
             return@map object : ISTSentFrenRequest {
                 override val req: ISTFrenRequest = req
                 override val receiverUser: STUser? = runBlocking { authService.getUserByid(req.receiverId) }
@@ -39,7 +39,7 @@ class FriendRequestListerImpl(
 
     override suspend fun getReceivedRequests(user: STUser): ReceivedFriendRequestListStatus {
 
-        val list =  etConReqRepo.getReceiveRequestsByUserForStatus(user.userId,FrenReqStatus.Sent.name!!).map { req ->
+        val list =  etConReqRepo.getReceiveRequestsByUserForStatus(user.userId,FrenReqStatus.Sent().name!!).map { req ->
             return@map object : ISTReceivedFrenRequest {
                 override val req: ISTFrenRequest = req
                 override val senderUser: STUser? = runBlocking { authService.getUserByid(req.senderId) }

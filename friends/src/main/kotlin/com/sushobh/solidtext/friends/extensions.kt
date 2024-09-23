@@ -8,26 +8,26 @@ import com.sushobh.solidtext.apiclasses.FrenReqStatus.Sent
 
  internal fun String.toFrenReqAction() : FrenReqAction {
     if(this == "Send"){
-        return FrenReqAction.Send
+        return FrenReqAction.Send()
     }
     else if(this == "Refuse"){
-        return FrenReqAction.Refuse
+        return FrenReqAction.Refuse()
     }
     else if(this == "Accept"){
-        return FrenReqAction.Accept
+        return FrenReqAction.Accept()
     }
     else if(this == "Cancel"){
-        return FrenReqAction.CancelRequest
+        return FrenReqAction.CancelRequest()
     }
-    return FrenReqAction.Nothing
+    return FrenReqAction.Nothing()
 }
 
 
 internal fun String.frenReqStatusFromText(): FrenReqStatus {
     return when (this) {
-        Sent.name -> Sent
-        Accepted.name -> Accepted
-        FrenReqStatus.Refused.name -> FrenReqStatus.Refused
-        else -> Nothing
+        Sent().name -> Sent()
+        Accepted().name -> Accepted()
+        FrenReqStatus.Refused().name -> FrenReqStatus.Refused()
+        else -> Nothing()
     }
 }

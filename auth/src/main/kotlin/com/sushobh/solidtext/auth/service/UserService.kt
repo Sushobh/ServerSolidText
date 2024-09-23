@@ -47,13 +47,13 @@ internal class UserService internal constructor(
         etUser?.let {
             return AuthServiceOutput.SearchUserStatus.Found(it.toStUser())
         }
-        return AuthServiceOutput.SearchUserStatus.UserNotFound
+        return AuthServiceOutput.SearchUserStatus.UserNotFound()
     }
 
     fun onSignupAttempt(input: AuthServiceInput.SignupInput): AuthServiceOutput.SignupStatus {
         val doesUserExist = doesUserExist(input.email)
         if (doesUserExist) {
-            return AuthServiceOutput.SignupStatus.UserAlreadyExists
+            return AuthServiceOutput.SignupStatus.UserAlreadyExists()
         } else {
             val sentOtp = otpService.sendOtp(OTP_TYPE_SIGNUP)
             sentOtp?.let {
@@ -67,7 +67,7 @@ internal class UserService internal constructor(
                 signupAttemptRepo.save(signupAttempt)
                 return AuthServiceOutput.SignupStatus.OtpSent(sentOtp.stringid.orEmpty())
             }
-            return AuthServiceOutput.SignupStatus.Error
+            return AuthServiceOutput.SignupStatus.Error()
         }
     }
 
@@ -76,13 +76,13 @@ internal class UserService internal constructor(
         latestAttempt?.let {
             val hasExpired = dateUtil.hasExpired(SecondsExpirable(latestAttempt.time, SIGNUP_ATTEMPT_EXPIRY_IN_SECONDS))
             if (hasExpired) {
-                return AuthServiceOutput.OtpValidateStatus.ExpiredRequest
+                return AuthServiceOutput.OtpValidateStatus.ExpiredRequest()
             }
             latestAttempt.otpId?.let {
                 val sentOtp = otpService.getOtp(it)
                 sentOtp?.let {
                     if(otpValidateInput.otpId != sentOtp.stringid){
-                        return AuthServiceOutput.OtpValidateStatus.InvalidDetails
+                        return AuthServiceOutput.OtpValidateStatus.InvalidDetails()
                     }
                     val time = dateUtil.getCurrentTime()
                     if (otpValidateInput.otpText == sentOtp.otp) {
@@ -93,12 +93,12 @@ internal class UserService internal constructor(
                             passwordId = etPassword.id, email = latestAttempt.email
                         )
                         etUserRepo.save(etUser)
-                        return AuthServiceOutput.OtpValidateStatus.Success
+                        return AuthServiceOutput.OtpValidateStatus.Success()
                     }
                 }
             }
         }
-        return AuthServiceOutput.OtpValidateStatus.InvalidDetails
+        return AuthServiceOutput.OtpValidateStatus.InvalidDetails()
     }
 
     fun login(loginInput: AuthServiceInput.LoginInput): AuthServiceOutput.LoginStatus {
@@ -113,7 +113,7 @@ internal class UserService internal constructor(
                 }
             }
         }
-        return AuthServiceOutput.LoginStatus.InvalidCredentials
+        return AuthServiceOutput.LoginStatus.InvalidCredentials()
     }
 
     internal fun getUserFromToken(tokenText: String): ETUser? {
@@ -135,7 +135,7 @@ internal class UserService internal constructor(
                   return AuthServiceOutput.UpdateUserNameStatus.Success(RespETUser(emailId = newUserRow.email, userName = newUserRow.username, userId = newUserRow.id))
               }
         }
-        return AuthServiceOutput.UpdateUserNameStatus.Failed
+        return AuthServiceOutput.UpdateUserNameStatus.Failed()
     }
 
     fun updateUserProp(input: AuthServiceInput.UserPropInput, extra: STUser) : AuthServiceOutput.UpdateUserPropStatus {

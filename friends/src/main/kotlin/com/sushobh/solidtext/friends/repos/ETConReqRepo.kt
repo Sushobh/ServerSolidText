@@ -10,7 +10,7 @@ import java.math.BigInteger
 
 interface ETConReqRepo : CrudRepository<ETConnectionReq,BigInteger> {
 
-    @Query("select *from connection_request where from_user = ?1 and to_user = ?2 order by time desc", nativeQuery = true)
+    @Query("select *from connection_request where from_user = ?1 and to_user = ?2 order by time desc limit 1", nativeQuery = true)
     fun getExistingConnectionRequest(userId: BigInteger, toUserId: BigInteger): ETConnectionReq?
 
     @Transactional

@@ -24,9 +24,9 @@ class AuthService internal constructor(private val userService: UserService) {
     suspend fun getUserByUserName(userName : String) : STUser? {
         val status =  userService.getUserByName(AuthServiceInput.SearchUserInput(userName))
         when(status){
-            AuthServiceOutput.SearchUserStatus.Failed -> return null
+            is AuthServiceOutput.SearchUserStatus.Failed -> return null
             is AuthServiceOutput.SearchUserStatus.Found -> return status.user
-            AuthServiceOutput.SearchUserStatus.UserNotFound -> return null
+            is AuthServiceOutput.SearchUserStatus.UserNotFound -> return null
         }
     }
 }

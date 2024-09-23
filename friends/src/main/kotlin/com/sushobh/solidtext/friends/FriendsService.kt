@@ -41,7 +41,7 @@ open class FriendsService(
                     canFriendRequestBeSentToUser(searchedFriend, user)
                 ),searchedFriend)
         }
-        return FriendServiceClasses.FrenSearchStatus.NotFound
+        return FriendServiceClasses.FrenSearchStatus.NotFound()
     }
 
 

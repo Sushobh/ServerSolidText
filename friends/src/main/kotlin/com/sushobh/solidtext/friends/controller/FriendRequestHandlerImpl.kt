@@ -44,17 +44,17 @@ class FriendRequestHandlerImpl(
 
 
         return when (actionInput.action.toFrenReqAction()) {
-            FrenReqAction.Accept -> handleAccept(actionInput, user)
-            FrenReqAction.Nothing -> FriendServiceClasses.FrenReqActionResult.Failed("Invalid friend request action.")
-            FrenReqAction.Refuse -> {
+            is FrenReqAction.Accept -> handleAccept(actionInput, user)
+            is FrenReqAction.Nothing -> FriendServiceClasses.FrenReqActionResult.Failed("Invalid friend request action.")
+            is FrenReqAction.Refuse -> {
                 handleRefuseRequest(actionInput, user)
             }
 
-            FrenReqAction.CancelRequest -> {
+            is FrenReqAction.CancelRequest -> {
                 cancelRequest(actionInput, user)
             }
 
-            FrenReqAction.Send -> {
+            is FrenReqAction.Send -> {
                 handleSendRequest(actionInput, user)
             }
         }
@@ -71,16 +71,16 @@ class FriendRequestHandlerImpl(
                 return FriendServiceClasses.FrenReqActionResult.Failed("Request does not belong to the user")
             }
             when(request.status.frenReqStatusFromText()){
-                Accepted -> {}
-                InActive -> {}
-                Nothing -> {
+                is Accepted -> {}
+                is InActive -> {}
+                is Nothing -> {
                     cancelRequest(user.userId,request.toUserid)
-                    return FriendServiceClasses.FrenReqActionResult.Cancelled
+                    return FriendServiceClasses.FrenReqActionResult.Cancelled()
                 }
-                Refused -> {}
-                Sent -> {
+                is Refused -> {}
+                is Sent -> {
                     cancelRequest(user.userId,request.toUserid)
-                    return FriendServiceClasses.FrenReqActionResult.Cancelled
+                    return FriendServiceClasses.FrenReqActionResult.Cancelled()
                 }
             }
         }
@@ -102,24 +102,24 @@ class FriendRequestHandlerImpl(
             val fromUserId = request.fromUserId
             val toUserId = request.toUserid
             when (status) {
-                Accepted -> {
+                is Accepted -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Invalid request, the request was accepted earlier.")
                 }
 
-                InActive -> {
+                is InActive -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("InActive request")
                 }
 
-                Nothing -> {
+                is Nothing -> {
                     refuseRequest(fromUserId, toUserId)
                     return FriendServiceClasses.FrenReqActionResult.Refused("Refused")
                 }
 
-                Refused -> {
+                is Refused -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Request was refused earlier")
                 }
 
-                Sent -> {
+                is Sent -> {
                     refuseRequest(fromUserId, toUserId)
                     return FriendServiceClasses.FrenReqActionResult.Refused("Refused")
                 }
@@ -137,26 +137,26 @@ class FriendRequestHandlerImpl(
         request?.let {
             val status = it.status.frenReqStatusFromText()
             when (status) {
-                Accepted -> {
+                is Accepted -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
                 }
 
-                InActive -> {
+                is InActive -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("InActive request")
                 }
 
-                Nothing -> {
+                is Nothing -> {
                     acceptRequest(it.fromUserId, it.toUserid)
-                    return FriendServiceClasses.FrenReqActionResult.FriendAdded
+                    return FriendServiceClasses.FrenReqActionResult.FriendAdded()
                 }
 
-                Refused -> {
+                is Refused -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Request was refused earlier")
                 }
 
-                Sent -> {
+                is Sent -> {
                     acceptRequest(it.fromUserId, it.toUserid)
-                    return FriendServiceClasses.FrenReqActionResult.FriendAdded
+                    return FriendServiceClasses.FrenReqActionResult.FriendAdded()
                 }
             }
         }
@@ -179,64 +179,64 @@ class FriendRequestHandlerImpl(
 
         existingConnectionRequestFromRecipient?.let {
             when (it.status.frenReqStatusFromText()) {
-                Accepted -> {
+                is Accepted -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
                 }
 
-                Nothing -> {}
-                Refused -> {
+                is Nothing -> {}
+                is Refused -> {
 
                 }
 
-                Sent -> {
+                is Sent -> {
                     acceptRequest(fromUserId, toUserId)
-                    return FriendServiceClasses.FrenReqActionResult.FriendAdded
+                    return FriendServiceClasses.FrenReqActionResult.FriendAdded()
                 }
 
-                InActive -> {}
+                is InActive -> {}
             }
         }
 
         existingConnectionRequest?.let {
             when (it.status.frenReqStatusFromText()) {
-                Accepted -> {
+                is Accepted -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
                 }
 
-                Nothing -> {
+                is Nothing -> {
 
                 }
 
-                Refused -> {
+                is Refused -> {
                     //If had been refused, we allow the user to send it again
                 }
 
-                Sent -> {
+                is Sent -> {
                     return FriendServiceClasses.FrenReqActionResult.Failed("Friend request already pending")
                 }
 
-                InActive -> {}
+                is InActive -> {}
             }
         }
-        val newRequest = ETConnectionReq(dateUtil.getCurrentTime(), Sent.name!!, fromUserId, toUserId)
+        val newRequest = ETConnectionReq(dateUtil.getCurrentTime(), Sent().name!!, fromUserId, toUserId)
         etConReqRepo.save(newRequest)
         return FriendServiceClasses.FrenReqActionResult.RequestSent("Request sent")
     }
 
     private fun cancelRequest(from: BigInteger, to: BigInteger) {
-        etConReqRepo.updateStatusOfRequest(InActive.name!!, from, to)
+        etConReqRepo.updateStatusOfRequest(InActive().name!!, from, to)
     }
 
 
     private fun refuseRequest(from: BigInteger, to: BigInteger) {
-        etConReqRepo.updateStatusOfRequest(Refused.name!!, from, to)
-        etConReqRepo.updateStatusOfRequest(InActive.name!!, to, from)
+        etConReqRepo.updateStatusOfRequest(Refused().name!!, from, to)
+        etConReqRepo.updateStatusOfRequest(InActive().name!!, to, from)
     }
 
     private fun acceptRequest(from: BigInteger, to: BigInteger) {
         val etCon = EtFrenConnection(dateUtil.getCurrentTime(), from, to)
-        etConReqRepo.updateStatusOfRequest(Accepted.name!!, from, to)
-        etConReqRepo.updateStatusOfRequest(InActive.name!!, to, from)
+        etConReqRepo.updateStatusOfRequest(Accepted().name!!, from, to)
+        etConReqRepo.updateStatusOfRequest(InActive().name!!, to, from)
         etConRepo.save(etCon)
     }
 
