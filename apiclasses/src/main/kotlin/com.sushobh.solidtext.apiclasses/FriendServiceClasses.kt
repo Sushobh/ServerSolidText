@@ -35,40 +35,63 @@ class FriendServiceClasses {
         data object Cancelled : FrenReqActionResult(Cancelled::class.simpleName)
     }
 
+    @Serializable
     data class FrenSearchUserByNameInput(val userName: String)
+
+    @Serializable
     data class FrenReqSendingAbility(val canSend: Boolean)
+
+    @Serializable
     sealed class FrenSearchStatus(val status: String?) {
+        @Serializable
         data object NotFound : FrenSearchStatus(NotFound::class.simpleName)
+        @Serializable
         data class Found(val reqSendingAbility: FrenReqSendingAbility, val user : STUser) : FrenSearchStatus(Found::class.simpleName)
     }
 }
 
+@Serializable
 sealed class FrenReqStatus(val name : String?) {
+    @Serializable
     data object Accepted : FrenReqStatus(Accepted::class.simpleName)
+    @Serializable
     data object Refused : FrenReqStatus(Refused::class.simpleName)
+    @Serializable
     data object Sent : FrenReqStatus(Sent::class.simpleName)
+    @Serializable
     data object InActive : FrenReqStatus(InActive::class.simpleName)
+    @Serializable
     data object Nothing : FrenReqStatus("")
 }
 
 
 sealed class FrenReqAction {
+    @Serializable
     object Send : FrenReqAction()
+    @Serializable
     object Refuse : FrenReqAction()
+    @Serializable
     object Accept : FrenReqAction()
+    @Serializable
     object CancelRequest : FrenReqAction()
+    @Serializable
     object Nothing : FrenReqAction()
 }
 
 
-
+@Serializable
 sealed class SentFriendRequestListStatus(var status : String) {
+    @Serializable
     data object Error : SentFriendRequestListStatus(Error::class.simpleName!!)
+    @Serializable
     data class Success(val reqs : List<ISTSentFrenRequest>) : SentFriendRequestListStatus(Success::class.simpleName!!)
 }
 
+@Serializable
 sealed class ReceivedFriendRequestListStatus(var status : String) {
+    @Serializable
     data object Error : SentFriendRequestListStatus(Error::class.simpleName!!)
+    @Serializable
     data class Success(val reqs : List<ISTReceivedFrenRequest>) : ReceivedFriendRequestListStatus(Success::class.simpleName!!)
 }
 
