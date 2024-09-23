@@ -1,16 +1,37 @@
 package com.sushobh.solidtext.apiclasses
 
+import com.sushobh.solidtext.apiclasses.client.serializers.BigIntegerSerializer
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.math.BigInteger
 import java.time.Instant
 
 class FriendServiceClasses {
-    data class FrenReqActionInput(val toUserId: BigInteger, val requestId : BigInteger? = null,val action: String)
+    @Serializable
+    data class FrenReqActionInput(@Serializable(with = BigIntegerSerializer::class) val toUserId: BigInteger,
+                                  @Serializable(with = BigIntegerSerializer::class) val requestId : BigInteger? = null, val action: String)
 
+    @Serializable
     sealed class FrenReqActionResult(val status: String?) {
+
+        @Serializable
         data class RequestSent(val message: String? = null) : FrenReqActionResult(RequestSent::class.simpleName)
+
+
+        @Serializable
         data object FriendAdded : FrenReqActionResult(FriendAdded::class.simpleName)
+
+
+        @Serializable
         data class Failed(val message: String) : FrenReqActionResult(Failed::class.simpleName)
+
+
+        @Serializable
         data class Refused(val message : String) : FrenReqActionResult(Refused::class.simpleName)
+
+        @SerialName("Cancelled")
+        @Serializable
         data object Cancelled : FrenReqActionResult(Cancelled::class.simpleName)
     }
 

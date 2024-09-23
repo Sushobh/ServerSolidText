@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @ComponentScan(basePackages = ["com.sushobh.solidtext.*","com.sushobh.common"])
 @EnableJpaRepositories(basePackages = ["com.sushobh.solidtext.*"])
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class])
+
 class SolidTextApplication
 
 fun main(args: Array<String>) {
