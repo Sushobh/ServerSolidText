@@ -49,7 +49,7 @@ class AuthServiceOutput {
         @Serializable
         data class InvalidCredentials(val message : String? = null) : LoginStatus(InvalidCredentials::class.simpleName)
         @Serializable
-        data class Success(val tokenText: String) : LoginStatus(Success::class.simpleName)
+        data class Success(val tokenText: String,val user : STUser) : LoginStatus(Success::class.simpleName)
     }
     @Serializable
     sealed class UpdateUserNameStatus(val status : String?) {

@@ -7,10 +7,8 @@ import com.sushobh.solidtext.apiclasses.FrenReqStatus.Nothing
 import com.sushobh.solidtext.apiclasses.FrenReqStatus.Sent
 
  internal fun String.toFrenReqAction() : FrenReqAction {
-    if(this == "Send"){
-        return FrenReqAction.Send()
-    }
-    else if(this == "Refuse"){
+
+    if(this == "Refuse"){
         return FrenReqAction.Refuse()
     }
     else if(this == "Accept"){

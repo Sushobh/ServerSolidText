@@ -109,7 +109,7 @@ internal class UserService internal constructor(
                 if (passwordEncoder.matches(loginInput.password, etPassword.passwordText)) {
                     val token = tokenService.generateToken(loginTokenConfig)
                     tokenPairRepo.save(ETUserTokenPair(ETUserTokenPairId(etUser.id, token.id)))
-                    return AuthServiceOutput.LoginStatus.Success(token.tokenText)
+                    return AuthServiceOutput.LoginStatus.Success(token.tokenText,etUser.toStUser())
                 }
             }
         }

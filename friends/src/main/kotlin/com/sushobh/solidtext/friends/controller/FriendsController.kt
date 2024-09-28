@@ -27,6 +27,17 @@ class FriendsController(private val friendsService: FriendsService, private val 
     }
 
 
+    @PostMapping("/frens/sendFrenReq")
+    suspend fun frenReqAction(@RequestBody body : FriendServiceClasses.FrenReqSendInput,
+                              @RequestHeader headers: Map<String, String>
+    ): STResponse<FriendServiceClasses.FrenReqActionResult> {
+        return authService.getAuthUserChain<FriendServiceClasses.FrenReqSendInput, FriendServiceClasses.FrenReqActionResult>(headers,body)
+            .addItem { input, _ ->
+                STResponse(friendsService.onSendFrenReq(body,input.getExtra(EXTRA_USER)), null)
+            }.next()
+    }
+
+
     @PostMapping("/frens/searchByUserName")
     suspend fun searchUserByName(@RequestBody body : FriendServiceClasses.FrenSearchUserByNameInput, @RequestHeader headers: Map<String, String>) :
             STResponse<FriendServiceClasses.FrenSearchStatus> {

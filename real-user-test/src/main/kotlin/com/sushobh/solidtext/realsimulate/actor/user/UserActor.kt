@@ -3,6 +3,7 @@ package com.sushobh.solidtext.realsimulate.actor.user
 import com.sushobh.com.sushobh.realusertests.client
 import com.sushobh.solidtext.apiclasses.AuthServiceInput
 import com.sushobh.solidtext.apiclasses.FriendServiceClasses
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.realsimulate.BigGuy.ApiResponse
 import com.sushobh.solidtext.realsimulate.BigGuy.LoginResponseBody
 import com.sushobh.solidtext.realsimulate.UserCreds
@@ -12,14 +13,17 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import java.math.BigInteger
 
-class UserActor(val creds: UserCreds) : Actor {
+class UserActor(val creds: UserCreds,val userInfo : STUser) : Actor {
+
+
 
     override suspend fun runCommand(command: Command<*>): CommandResult {
         when(command){
             is SendFriendReqCommand -> {
-                val response: ApiResponse<FriendServiceClasses.FrenReqActionResult> = postRequest("http://localhost:8080/frens/reqAction",
-                    FriendServiceClasses.FrenReqActionInput(command.payload, BigInteger("0"),"Send"), mapOf("AUTH_HEADER" to creds.authHeader)
+                val response: ApiResponse<FriendServiceClasses.FrenReqActionResult> = postRequest("http://localhost:8080/frens/sendFrenReq",
+                    FriendServiceClasses.FrenReqSendInput(command.payload), mapOf("AUTH_HEADER" to creds.authHeader)
                 )
+                println(response)
             }
         }
         return FailedCommandResult()

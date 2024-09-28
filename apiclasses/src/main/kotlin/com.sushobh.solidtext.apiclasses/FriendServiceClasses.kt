@@ -12,8 +12,10 @@ import java.time.Instant
 
 class FriendServiceClasses {
     @Serializable
-    data class FrenReqActionInput( val toUserId: BigInteger,
+    data class FrenReqActionInput( val toUserId: BigInteger? = null,
                                    val requestId : BigInteger? = null, val action: String)
+    @Serializable
+    data class FrenReqSendInput( val toUserId: BigInteger)
 
     @Serializable
     sealed class FrenReqActionResult(val status: String?) {
@@ -69,8 +71,7 @@ sealed class FrenReqStatus(val name : String? = null) {
 
 
 sealed class FrenReqAction {
-    @Serializable
-    data class Send(val message : String? = null) : FrenReqAction()
+
     @Serializable
     data class Refuse(val message : String? = null) : FrenReqAction()
     @Serializable

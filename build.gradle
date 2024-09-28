@@ -46,7 +46,7 @@ dependencies {
 	implementation project(':posts')
 	implementation project(':friends')
 	implementation project(':real-user-test')
-
+	implementation project(':apiclasses')
 }
 
 tasks.withType(KotlinCompile) {

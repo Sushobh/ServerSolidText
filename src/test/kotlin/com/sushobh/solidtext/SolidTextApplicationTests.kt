@@ -19,9 +19,31 @@ class SolidTextApplicationTests {
 
     @Test
     fun sendFriendReq() = runBlocking{
-        val actor = bigGuy.login("sad258@gmail.com","1234")
+        bigGuy.createUser("sad261@gmail.com","1234")
+        val actor = bigGuy.login("sad261@gmail.com","1234")
         actor.runCommand(SendFriendReqCommand(payload = BigInteger("70")))
         Unit
+    }
+
+    @Test
+    fun sendPlenty() = runBlocking {
+        (300..310).forEach {
+            bigGuy.createUser("sad${it}@gmail.com","1234")
+            val actor = bigGuy.login("sad${it}@gmail.com","1234")
+            actor.runCommand(SendFriendReqCommand(payload = BigInteger("70")))
+            Unit
+        }
+    }
+
+    @Test
+    fun sendPlentToPlenty() = runBlocking {
+        val actor = bigGuy.login("sushobh5@gmail.com","1234")
+        (331..340).forEach {
+            bigGuy.createUser("sad${it}@gmail.com","1234")
+            actor.runCommand(SendFriendReqCommand(payload =
+             BigInteger(bigGuy.login("sad${it}@gmail.com","1234").userInfo.userId.toString())))
+            Unit
+        }
     }
 
 }

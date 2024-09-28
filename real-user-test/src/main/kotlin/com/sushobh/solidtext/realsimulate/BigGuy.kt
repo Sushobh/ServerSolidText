@@ -3,6 +3,7 @@ package com.sushobh.solidtext.realsimulate
 import com.fasterxml.jackson.core.JsonParser
 import com.sushobh.com.sushobh.realusertests.client
 import com.sushobh.solidtext.apiclasses.AuthServiceInput
+import com.sushobh.solidtext.apiclasses.STUser
 import com.sushobh.solidtext.auth.debug.AuthDebugService
 import com.sushobh.solidtext.realsimulate.actor.user.UserActor
 import io.ktor.client.call.*
@@ -29,12 +30,12 @@ class BigGuy(private val authDebugService: AuthDebugService) {
     data class OtpValidateResponseBody(val status: String)
 
     @Serializable
-    data class LoginResponseBody(val status: String, val tokenText: String?)
+    data class LoginResponseBody(val status: String, val tokenText: String?,val user : STUser)
 
     suspend fun login(email: String, password: String) : UserActor{
         val response: ApiResponse<LoginResponseBody> = postRequest("http://localhost:8080/public/login",
             AuthServiceInput.LoginInput(email, password))
-        return UserActor(UserCreds(response.body?.tokenText!!))
+        return UserActor(UserCreds(response.body?.tokenText!!),response.body.user!!)
     }
 
     suspend fun createUser(email: String, password: String) {

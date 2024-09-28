@@ -25,6 +25,8 @@ interface FriendRequestHandler {
         user: STUser
     ): FriendServiceClasses.FrenReqActionResult
 
+    suspend fun onSendFrenReq(actionInput: FriendServiceClasses.FrenReqSendInput,user : STUser) : FriendServiceClasses.FrenReqActionResult
+
 }
 
 @Service
@@ -54,10 +56,66 @@ class FriendRequestHandlerImpl(
                 cancelRequest(actionInput, user)
             }
 
-            is FrenReqAction.Send -> {
-                handleSendRequest(actionInput, user)
+        }
+    }
+
+    override suspend fun onSendFrenReq(
+        actionInput: FriendServiceClasses.FrenReqSendInput,
+        user: STUser
+    ): FriendServiceClasses.FrenReqActionResult {
+        val fromUserId = user.userId
+        val toUserId = actionInput.toUserId
+        if (friendsUtil.areFriends(fromUserId, toUserId)) {
+            return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
+        }
+        val existingConnectionRequest = etConReqRepo.getExistingConnectionRequest(user.userId, actionInput.toUserId)
+        val existingConnectionRequestFromRecipient =
+            etConReqRepo.getExistingConnectionRequest(actionInput.toUserId, user.userId)
+
+        existingConnectionRequestFromRecipient?.let {
+            when (it.status.frenReqStatusFromText()) {
+                is Accepted -> {
+                    return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
+                }
+
+                is Nothing -> {}
+                is Refused -> {
+
+                }
+
+                is Sent -> {
+                    acceptRequest(fromUserId, toUserId)
+                    return FriendServiceClasses.FrenReqActionResult.FriendAdded()
+                }
+
+                is InActive -> {}
             }
         }
+
+        existingConnectionRequest?.let {
+            when (it.status.frenReqStatusFromText()) {
+                is Accepted -> {
+                    return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
+                }
+
+                is Nothing -> {
+
+                }
+
+                is Refused -> {
+                    //If had been refused, we allow the user to send it again
+                }
+
+                is Sent -> {
+                    return FriendServiceClasses.FrenReqActionResult.Failed("Friend request already pending")
+                }
+
+                is InActive -> {}
+            }
+        }
+        val newRequest = ETConnectionReq(dateUtil.getCurrentTime(), Sent().name!!, fromUserId, toUserId)
+        etConReqRepo.save(newRequest)
+        return FriendServiceClasses.FrenReqActionResult.RequestSent("Request sent")
     }
 
 
@@ -84,7 +142,7 @@ class FriendRequestHandlerImpl(
                 }
             }
         }
-        request?.fromUserId?.let { cancelRequest(it, actionInput.toUserId) }
+
         return FriendServiceClasses.FrenReqActionResult.Failed("Invalid state")
     }
 
@@ -163,65 +221,6 @@ class FriendRequestHandlerImpl(
         return FriendServiceClasses.FrenReqActionResult.Failed("Request does not exist or its invalid")
     }
 
-
-    suspend fun handleSendRequest(
-        actionInput: FriendServiceClasses.FrenReqActionInput,
-        user: STUser
-    ): FriendServiceClasses.FrenReqActionResult {
-        val fromUserId = user.userId
-        val toUserId = actionInput.toUserId
-        if (friendsUtil.areFriends(fromUserId, toUserId)) {
-            return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
-        }
-        val existingConnectionRequest = etConReqRepo.getExistingConnectionRequest(user.userId, actionInput.toUserId)
-        val existingConnectionRequestFromRecipient =
-            etConReqRepo.getExistingConnectionRequest(actionInput.toUserId, user.userId)
-
-        existingConnectionRequestFromRecipient?.let {
-            when (it.status.frenReqStatusFromText()) {
-                is Accepted -> {
-                    return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
-                }
-
-                is Nothing -> {}
-                is Refused -> {
-
-                }
-
-                is Sent -> {
-                    acceptRequest(fromUserId, toUserId)
-                    return FriendServiceClasses.FrenReqActionResult.FriendAdded()
-                }
-
-                is InActive -> {}
-            }
-        }
-
-        existingConnectionRequest?.let {
-            when (it.status.frenReqStatusFromText()) {
-                is Accepted -> {
-                    return FriendServiceClasses.FrenReqActionResult.Failed("Already friends")
-                }
-
-                is Nothing -> {
-
-                }
-
-                is Refused -> {
-                    //If had been refused, we allow the user to send it again
-                }
-
-                is Sent -> {
-                    return FriendServiceClasses.FrenReqActionResult.Failed("Friend request already pending")
-                }
-
-                is InActive -> {}
-            }
-        }
-        val newRequest = ETConnectionReq(dateUtil.getCurrentTime(), Sent().name!!, fromUserId, toUserId)
-        etConReqRepo.save(newRequest)
-        return FriendServiceClasses.FrenReqActionResult.RequestSent("Request sent")
-    }
 
     private fun cancelRequest(from: BigInteger, to: BigInteger) {
         etConReqRepo.updateStatusOfRequest(InActive().name!!, from, to)
