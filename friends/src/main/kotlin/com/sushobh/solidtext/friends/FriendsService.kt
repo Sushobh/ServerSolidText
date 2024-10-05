@@ -29,10 +29,6 @@ open class FriendsService(
     private val friendsUtil: FriendsUtil
 ) : FriendRequestHandler by friendRequestHandler,FriendRequestLister by friendRequestLister {
 
-
-
-
-
     suspend fun searchUserByName(frenSearchUserByNameInput: FriendServiceClasses.FrenSearchUserByNameInput, user: STUser): FriendServiceClasses.FrenSearchStatus {
         val searchedFriend = authService.getUserByUserName(frenSearchUserByNameInput.userName)
         searchedFriend?.let {

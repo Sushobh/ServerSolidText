@@ -63,5 +63,13 @@ class FriendsController(private val friendsService: FriendsService, private val 
             } .next()
     }
 
+    @GetMapping("/frens/getFriends")
+    suspend fun getFriends(@RequestHeader headers: Map<String, String>) : STResponse<FriendListStatus>{
+        return authService.getAuthUserChain<Any,FriendListStatus>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(friendsService.getFriends(input[EXTRA_USER]), null)
+            } .next()
+    }
+
 
 }

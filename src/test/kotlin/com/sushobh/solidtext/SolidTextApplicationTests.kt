@@ -27,7 +27,7 @@ class SolidTextApplicationTests {
 
     @Test
     fun sendPlenty() = runBlocking {
-        (300..310).forEach {
+        (350..370).forEach {
             bigGuy.createUser("sad${it}@gmail.com","1234")
             val actor = bigGuy.login("sad${it}@gmail.com","1234")
             actor.runCommand(SendFriendReqCommand(payload = BigInteger("70")))
@@ -38,10 +38,10 @@ class SolidTextApplicationTests {
     @Test
     fun sendPlentToPlenty() = runBlocking {
         val actor = bigGuy.login("sushobh5@gmail.com","1234")
-        (331..340).forEach {
+        (370..390).forEach {
             bigGuy.createUser("sad${it}@gmail.com","1234")
-            actor.runCommand(SendFriendReqCommand(payload =
-             BigInteger(bigGuy.login("sad${it}@gmail.com","1234").userInfo.userId.toString())))
+            val userActor = bigGuy.login("sad${it}@gmail.com","1234")
+            actor.runCommand(SendFriendReqCommand(payload = userActor.userInfo.userId))
             Unit
         }
     }

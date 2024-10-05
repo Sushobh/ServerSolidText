@@ -13,6 +13,9 @@ interface ETConRepo : CrudRepository<EtFrenConnection,EtConId> {
             "(select *from fren_connection where from_user = ?2 and to_user = ?1)", nativeQuery = true)
     fun getExistingConnections(from : BigInteger,to : BigInteger) : List<EtFrenConnection>
 
+    @Query("(select * from fren_connection where to_user = ?1) union (select *from fren_connection where from_user = ?1)", nativeQuery = true)
+    fun getFriendConnectionsForUser(userId : BigInteger) : List<EtFrenConnection>
+
 
 
 

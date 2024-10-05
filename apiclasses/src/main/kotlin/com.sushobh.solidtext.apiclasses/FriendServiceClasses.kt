@@ -99,6 +99,14 @@ sealed class ReceivedFriendRequestListStatus(var status : String) {
     data class Success(val reqs : List<ISTReceivedFrenRequest>) : ReceivedFriendRequestListStatus(Success::class.simpleName!!)
 }
 
+@Serializable
+sealed class FriendListStatus(var status : String) {
+    @Serializable
+    data class Error(val message : String? = null) : FriendListStatus(Error::class.simpleName!!)
+    @Serializable
+    data class Success(val friends : List<STUser>) : FriendListStatus(Success::class.simpleName!!)
+}
+
 
 interface ISTFrenRequest {
       val sentTime : Instant

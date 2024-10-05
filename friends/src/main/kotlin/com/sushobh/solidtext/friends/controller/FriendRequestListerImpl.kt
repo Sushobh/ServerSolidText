@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 interface FriendRequestLister {
     suspend fun getSentRequests(user : STUser): SentFriendRequestListStatus
     suspend fun getReceivedRequests(user: STUser): ReceivedFriendRequestListStatus
+    suspend fun getFriends(user : STUser) : FriendListStatus
 }
 
 
@@ -19,7 +20,8 @@ interface FriendRequestLister {
 @Service
 class FriendRequestListerImpl(
                               private val etConReqRepo: ETConReqRepo,
-                              private val authService: AuthService
+                              private val authService: AuthService,
+    private val etConRepo : ETConRepo
 )  : FriendRequestLister {
 
 
@@ -46,6 +48,21 @@ class FriendRequestListerImpl(
             }
         }
         return ReceivedFriendRequestListStatus.Success(list)
+    }
+
+    override suspend fun getFriends(user: STUser): FriendListStatus {
+        val list = etConRepo.getFriendConnectionsForUser(user.userId)
+        return list.map {
+            val friendId = if(it.fromUserId == user.userId){
+                it.toUserid
+            }
+            else {
+                it.fromUserId
+            }
+            authService.getUserByid(friendId)
+        }.run {
+            FriendListStatus.Success(this.filterNotNull())
+        }
     }
 
 }
