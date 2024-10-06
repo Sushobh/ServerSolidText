@@ -34,7 +34,6 @@ class FriendRequestHandlerImpl(
     private val dateUtil: DateUtil,
     private val etConReqRepo: ETConReqRepo,
     private val etConRepo: ETConRepo,
-    private val authService: AuthService,
     private val friendsUtil: FriendsUtil
 ) : FriendRequestHandler {
 
@@ -56,7 +55,18 @@ class FriendRequestHandlerImpl(
                 cancelRequest(actionInput, user)
             }
 
+            is FrenReqAction.RemoveFriend -> handleRemoveFriend(actionInput,user)
         }
+    }
+
+    private fun handleRemoveFriend(actionInput: FriendServiceClasses.FrenReqActionInput, user: STUser): FriendServiceClasses.FrenReqActionResult {
+        val userId1 = actionInput.toUserId
+        val userId2 = user.userId
+        userId1?.let {
+            etConRepo.removeAsFriend(it,userId2)
+            return FriendServiceClasses.FrenReqActionResult.RemovedFriend("")
+        }
+        return FriendServiceClasses.FrenReqActionResult.Failed("")
     }
 
     override suspend fun onSendFrenReq(

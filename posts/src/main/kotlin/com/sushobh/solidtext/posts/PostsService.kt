@@ -67,6 +67,10 @@ internal class PostsService(
 
     }
 
+   suspend fun getOtherUserPosts(userId : BigInteger, itemId: BigInteger?): PostServiceClasses.GetUserPostsStatus {
+       return authService.getUserByid(userId)?.let { getUserPosts(it,itemId) } ?: PostServiceClasses.GetUserPostsStatus.Failed("")
+   }
+
    suspend fun getUserPosts(user: STUser, itemId: BigInteger?): PostServiceClasses.GetUserPostsStatus {
 
         try {

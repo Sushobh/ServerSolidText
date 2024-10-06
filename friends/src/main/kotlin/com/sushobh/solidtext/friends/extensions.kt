@@ -17,6 +17,9 @@ import com.sushobh.solidtext.apiclasses.FrenReqStatus.Sent
     else if(this == "Cancel"){
         return FrenReqAction.CancelRequest()
     }
+    else if(this == "RemoveFriend") {
+        return FrenReqAction.RemoveFriend()
+    }
     return FrenReqAction.Nothing()
 }
 

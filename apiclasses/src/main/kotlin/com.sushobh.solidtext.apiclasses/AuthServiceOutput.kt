@@ -80,6 +80,14 @@ class AuthServiceOutput {
         data class Failed(val message : String? = null) : GetUserPropsStatus(Failed::class.simpleName)
     }
 
+    @Serializable
+    sealed class GetOtherUserInfoStatus(val status : String?) {
+        @Serializable
+        data class Success(val user : STUser) : GetOtherUserInfoStatus(Success::class.simpleName)
+        @Serializable
+        data class Failed(val message : String? = null) : GetOtherUserInfoStatus(Failed::class.simpleName)
+    }
+
 
 }
 

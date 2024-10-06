@@ -9,6 +9,7 @@ import com.sushobh.solidtext.auth.service.TokenService
 import com.sushobh.solidtext.auth.service.UserService
 import common.util.requests.STResponse
 import org.springframework.web.bind.annotation.*
+import java.math.BigInteger
 
 
 @RestController
@@ -87,6 +88,14 @@ internal class SignupController(
         return getUserRequestChain<Any,AuthServiceOutput.GetUserPropsStatus>(userService,Unit,headers)
             .addItem { input, _ ->
                 STResponse(userService.getUserProps(input[EXTRA_USER]), null)
+            } .next()
+    }
+
+    @GetMapping("/user/otheruserInfo")
+    suspend fun getOtherUserInfo(@RequestHeader headers: Map<String, String>,@RequestParam("userId") userId : BigInteger) : STResponse<AuthServiceOutput.GetOtherUserInfoStatus>{
+        return getUserRequestChain<Any,AuthServiceOutput.GetOtherUserInfoStatus>(userService,Unit,headers)
+            .addItem { input, _ ->
+                STResponse(userService.getOtherUserDetails(userId), null)
             } .next()
     }
 

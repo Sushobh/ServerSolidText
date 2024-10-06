@@ -43,10 +43,19 @@ internal class PostsController(private val authService : AuthService,private val
 
 
     @GetMapping("/posts/getUserPosts")
-    suspend fun getUserProps(@RequestHeader headers: Map<String, String>, @RequestParam("lastItem") itemId : BigInteger?) : STResponse<PostServiceClasses.GetUserPostsStatus>{
+    suspend fun getUserPosts(@RequestHeader headers: Map<String, String>, @RequestParam("lastItem") itemId : BigInteger?) : STResponse<PostServiceClasses.GetUserPostsStatus>{
         return authService.getAuthUserChain<Any,PostServiceClasses.GetUserPostsStatus>(headers,Unit)
             .addItem { input, _ ->
                 STResponse(postsService.getUserPosts(input[EXTRA_USER],itemId), null)
+            } .next()
+    }
+
+
+    @GetMapping("/posts/getOtherUserPosts")
+    suspend fun getOtherUserPosts(@RequestHeader headers: Map<String, String>,@RequestParam("userId") userId : BigInteger, @RequestParam("lastItem") itemId : BigInteger?) : STResponse<PostServiceClasses.GetUserPostsStatus>{
+        return authService.getAuthUserChain<Any,PostServiceClasses.GetUserPostsStatus>(headers,Unit)
+            .addItem { input, _ ->
+                STResponse(postsService.getOtherUserPosts(userId,itemId), null)
             } .next()
     }
 

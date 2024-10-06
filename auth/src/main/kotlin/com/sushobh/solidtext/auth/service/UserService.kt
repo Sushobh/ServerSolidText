@@ -151,6 +151,15 @@ internal class UserService internal constructor(
         return this.etUserRepo.findById(id).getOrNull()?.toStUser()
     }
 
+
+    fun getOtherUserDetails(userId : BigInteger) : AuthServiceOutput.GetOtherUserInfoStatus {
+        val stUser = getUserById(userId)
+        stUser?.let {
+            return AuthServiceOutput.GetOtherUserInfoStatus.Success(it)
+        }
+        return AuthServiceOutput.GetOtherUserInfoStatus.Failed("")
+    }
+
     fun getUserProps( extra: STUser): AuthServiceOutput.GetUserPropsStatus {
           val user : ETUser? = this.etUserRepo.findById(extra.userId).getOrNull()
           user?.let {

@@ -31,6 +31,9 @@ class FriendServiceClasses {
         @Serializable
         data class Failed(val message: String) : FrenReqActionResult(Failed::class.simpleName)
 
+        @Serializable
+        data class RemovedFriend(val message: String) : FrenReqActionResult(RemovedFriend::class.simpleName)
+
 
         @Serializable
         data class Refused(val message : String) : FrenReqActionResult(Refused::class.simpleName)
@@ -80,6 +83,8 @@ sealed class FrenReqAction {
     data class CancelRequest(val message : String? = null) : FrenReqAction()
     @Serializable
     data class Nothing(val message : String? = null) : FrenReqAction()
+    @Serializable
+    data class RemoveFriend(val message : String? = null) : FrenReqAction()
 }
 
 
