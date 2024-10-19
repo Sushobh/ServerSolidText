@@ -39,6 +39,14 @@ class PostServiceClasses {
         data class Failed(val message : String? = null) : GetUserPostsStatus(Failed::class.simpleName)
     }
 
+    @Serializable
+    sealed class PostFeedStatus(val status : String?){
+        @Serializable
+        data class Success(val userPosts : List<STPost>) : PostFeedStatus(Success::class.simpleName)
+        @Serializable
+        data class Failed(val message : String? = null) : PostFeedStatus(Failed::class.simpleName)
+    }
+
 
     @Serializable
     class STPost ( val id : BigInteger,

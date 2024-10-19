@@ -35,15 +35,19 @@ internal class PostsService(
     }
 
 
-    suspend fun getPostFeed(user: STUser): List<PostServiceClasses.STPost> {
-        return etPostRepository.getPostFeed(user.userId, NUM_ITEMS_PER_POST_FEED_CALL).map {
-            PostServiceClasses.STPost(
-                addedTime = it.addedTime,
-                postText = it.postText,
-                byUser = authService.getUserByid(it.byUser),
-                id = it.id,
-                status = it.status
-            )
+    suspend fun getPostFeed(user: STUser): PostServiceClasses.PostFeedStatus {
+        try {
+            return PostServiceClasses.PostFeedStatus.Success(etPostRepository.getPostFeed(user.userId, NUM_ITEMS_PER_POST_FEED_CALL).map {
+                PostServiceClasses.STPost(
+                    addedTime = it.addedTime,
+                    postText = it.postText,
+                    byUser = authService.getUserByid(it.byUser),
+                    id = it.id,
+                    status = it.status
+                )
+            })
+        } catch (e: Exception) {
+            return PostServiceClasses.PostFeedStatus.Failed()
         }
     }
 

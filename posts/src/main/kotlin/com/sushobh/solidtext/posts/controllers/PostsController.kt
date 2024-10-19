@@ -24,8 +24,8 @@ internal class PostsController(private val authService : AuthService,private val
     }
 
     @GetMapping("/posts/feed")
-    suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<List<PostServiceClasses.STPost>>{
-        return authService.getAuthUserChain<Any,List<PostServiceClasses.STPost>>(headers,Unit)
+    suspend fun getPostFeed(@RequestHeader headers: Map<String, String>) : STResponse<PostServiceClasses.PostFeedStatus>{
+        return authService.getAuthUserChain<Any,PostServiceClasses.PostFeedStatus>(headers,Unit)
             .addItem { input, _ ->
                 STResponse(postsService.getPostFeed(input[EXTRA_USER]), null)
             } .next()
