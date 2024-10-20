@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: SolidText
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+---
+spring:
+  profiles:
+    active: remoteDev
+
+# Default profile (for shared configuration)
+---
+spring:
+  config:
+    activate:
+      on-profile: "localhost"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/solidtext
+    username: postgres
+    password: root
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "dockerLocal"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/solidtext
+    username: postgres
+    password: root
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "remoteDev"
+  datasource:
+    url: jdbc:postgresql://ep-dawn-tree-a1334x5l.ap-southeast-1.aws.neon.tech/solidtext?sslmode=require
+    username: solidtext_owner
+    password: 7gc6NmRMVdZK
