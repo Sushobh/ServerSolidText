@@ -21,3 +21,5 @@ Example target tag ap-mumbai-1.ocir.io/bmafawqhp6dm/solidtext/solidtext2:v1
    ```
    docker push ap-mumbai-1.ocir.io/bmafawqhp6dm/solidtext/solidtext2:v1
    ```
+#### Docker unsupported manifest mediatype
+Make sure to build image using docker build command instead of through intelliJ
