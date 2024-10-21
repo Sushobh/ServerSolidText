@@ -7,5 +7,7 @@ ssh -i ssh-key-2024-10-21.key opc@140.238.251.35
 sudo docker pull bom.ocir.io/bmafawqhp6dm/solidtext/solidtext:v6
 
 ## Docker run 
-#### Make sure that you dont pass -d. So that its not detached and you can see logs.
+#### To view the logs omit -d
 sudo docker run  -p 8080:8080 e42535b1a520 
+#### To run in background use -d, -t is supposed to keep it running
+sudo docker run -t -d -p 8080:8080 e42535b1a520 
