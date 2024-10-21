@@ -4,6 +4,8 @@
 `./gradlew bootRun` Before this make sure that the java version on the command line
 is pointing to the right java version. 
 
+`./gradlew bootJar` Builds an executable JAR. Avoid No Main manifest error
+
 
 #### Connect using command line
 ./psql -d "solidtext" Where the "solidtext" is the database name

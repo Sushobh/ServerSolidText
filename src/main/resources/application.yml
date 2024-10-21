@@ -10,12 +10,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 ---
 spring:
-  profiles:
-    active: remoteDev
-
-# Default profile (for shared configuration)
----
-spring:
   config:
     activate:
       on-profile: "localhost"
@@ -23,12 +17,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/solidtext
     username: postgres
     password: root
-
 ---
 spring:
   config:
     activate:
-      on-profile: "dockerLocal"
+      on-profile: "dockerLocal2"
   datasource:
     url: jdbc:postgresql://localhost:5432/solidtext
     username: postgres
