@@ -16,7 +16,7 @@ The tag should be of format
 <registry-domain>/<tenancy-namespace>/<repo-name>:<version>
 ```
 registry-domain = ap-mumbai-1.ocir.io
-Example target tag ap-mumbai-1.ocir.io/bmafawqhp6dm/solidtext/solidtext2:v1
+Example target tag ap-mumbai-1.ocir.io/bmafawqhp6dm/solidtext2:v1
 #### Push using  
    ```
    docker push ap-mumbai-1.ocir.io/bmafawqhp6dm/solidtext/solidtext2:v1
