@@ -33,7 +33,7 @@ internal interface ETUserRepo : CrudRepository<ETUser, BigInteger> {
     @Transactional
     @Query(
         value = "UPDATE st_user " +
-                "SET user_props = jsonb_set(user_props,CONCAT('{', :key, '}')::text[] ,to_jsonb(:value) ) " +
+                "SET user_props = jsonb_set(COALESCE(user_props, '{}'),CONCAT('{', :key, '}')::text[] ,to_jsonb(:value) ) " +
                 "WHERE id = :id",
         nativeQuery = true
     )

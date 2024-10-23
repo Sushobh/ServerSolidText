@@ -11,7 +11,7 @@ spring:
 ---
 spring:
   profiles:
-    active : "localhost"
+    active : "localRemoteDev"
 ---
 
 spring:
@@ -23,6 +23,18 @@ spring:
     username: postgres
     password: root
   BASE_URL: "http://localhost:8080"
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "localRemoteDev"
+  datasource:
+    url: jdbc:postgresql://ep-dawn-tree-a1334x5l.ap-southeast-1.aws.neon.tech/solidtext?sslmode=require
+    username: solidtext_owner
+    password: 7gc6NmRMVdZK
+  BASE_URL: "http://localhost:8080"
+
 ---
 spring:
   config:
