@@ -33,14 +33,14 @@ class BigGuy(private val authDebugService: AuthDebugService) {
     data class LoginResponseBody(val status: String, val tokenText: String?,val user : STUser)
 
     suspend fun login(email: String, password: String) : UserActor{
-        val response: ApiResponse<LoginResponseBody> = postRequest("http://localhost:8080/public/login",
+        val response: ApiResponse<LoginResponseBody> = postRequest("${BASE_URL}/public/login",
             AuthServiceInput.LoginInput(email, password))
         return UserActor(UserCreds(response.body?.tokenText!!),response.body.user!!)
     }
 
     suspend fun createUser(email: String, password: String) {
 
-        val response: ApiResponse<SignupResponseBody> = postRequest("http://localhost:8080/public/signup",
+        val response: ApiResponse<SignupResponseBody> = postRequest("${BASE_URL}/public/signup",
             AuthServiceInput.SignupInput(email, password))
         response.body?.stringId?.let { stringIdOfOtp ->
             validateOtpForUser(stringIdOfOtp)
@@ -49,7 +49,7 @@ class BigGuy(private val authDebugService: AuthDebugService) {
 
     private suspend fun validateOtpForUser(stringIdOfOtp: String) {
         val otpSent = authDebugService.getOtpByStringId(stringIdOfOtp)
-        val response: ApiResponse<OtpValidateResponseBody> = postRequest("http://localhost:8080/public/otpValidate",
+        val response: ApiResponse<OtpValidateResponseBody> = postRequest("${BASE_URL}/public/otpValidate",
             AuthServiceInput.OtpValidateInput(otpSent ?: "", stringIdOfOtp))
 
     }

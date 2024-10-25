@@ -1,6 +1,6 @@
 #### logging into instance
 
-ssh -i ssh-key-2024-10-21.key opc@140.238.251.35
+ssh -i ssh-key-2024-10-21.key ubuntu@141.148.197.19
 
 
 #### Docker pull from registry

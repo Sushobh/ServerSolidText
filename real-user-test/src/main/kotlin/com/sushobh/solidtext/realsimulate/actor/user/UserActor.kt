@@ -4,6 +4,7 @@ import com.sushobh.com.sushobh.realusertests.client
 import com.sushobh.solidtext.apiclasses.AuthServiceInput
 import com.sushobh.solidtext.apiclasses.FriendServiceClasses
 import com.sushobh.solidtext.apiclasses.STUser
+import com.sushobh.solidtext.realsimulate.BASE_URL
 import com.sushobh.solidtext.realsimulate.BigGuy.ApiResponse
 import com.sushobh.solidtext.realsimulate.BigGuy.LoginResponseBody
 import com.sushobh.solidtext.realsimulate.UserCreds
@@ -20,7 +21,7 @@ class UserActor(val creds: UserCreds,val userInfo : STUser) : Actor {
     override suspend fun runCommand(command: Command<*>): CommandResult {
         when(command){
             is SendFriendReqCommand -> {
-                val response: ApiResponse<FriendServiceClasses.FrenReqActionResult> = postRequest("http://localhost:8080/frens/sendFrenReq",
+                val response: ApiResponse<FriendServiceClasses.FrenReqActionResult> = postRequest("$BASE_URL/frens/sendFrenReq",
                     FriendServiceClasses.FrenReqSendInput(command.payload), mapOf("AUTH_HEADER" to creds.authHeader)
                 )
                 println(response)
