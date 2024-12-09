@@ -29,6 +29,7 @@ class AppConfig(BASE_URL : String) {
     @JsonProperty("URL_SEND_FREN_REQ") val sendFrenReq : String = "$BASE_URL/frens/sendFrenReq"
     @JsonProperty("URL_FRENLIST") val friendList : String = "$BASE_URL/frens/getFriends"
     @JsonProperty("URL_GET_OTHER_USER_INFO") val otherUserInfo : String = "$BASE_URL/user/otheruserInfo"
+    @JsonProperty("URL_GET_POST") val getPost : String = "$BASE_URL/posts/getPost"
 }
 
 

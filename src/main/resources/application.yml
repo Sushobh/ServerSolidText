@@ -11,7 +11,7 @@ spring:
 ---
 spring:
   profiles:
-    active : "localRemoteDev"
+    active : "localhost"
 ---
 
 spring:

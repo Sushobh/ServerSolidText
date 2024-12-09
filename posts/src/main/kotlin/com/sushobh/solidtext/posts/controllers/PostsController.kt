@@ -59,7 +59,14 @@ internal class PostsController(private val authService : AuthService,private val
             } .next()
     }
 
-
-
+    //TODO add permission for viewing posts
+    @GetMapping("/posts/getPost/{postId}")
+    suspend fun getPost(@RequestHeader headers: Map<String, String>, @PathVariable postId : String) : STResponse<PostServiceClasses.GetPostStatus>{
+        return authService.getAuthUserChain<Any, PostServiceClasses.GetPostStatus>(headers, Unit)
+            .addItem { input, _ ->
+                val resp = postsService.getPost(postId,input[EXTRA_USER])
+                STResponse(resp,null)
+            }.next()
+    }
 
 }

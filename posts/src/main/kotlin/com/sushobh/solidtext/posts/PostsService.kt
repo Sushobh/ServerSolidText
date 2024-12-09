@@ -71,6 +71,23 @@ internal class PostsService(
 
     }
 
+    suspend fun getPost(postId: String, user : STUser) : PostServiceClasses.GetPostStatus {
+        val post = etPostRepository.getPostById(BigInteger(postId))
+        if(post != null){
+            val stPost = PostServiceClasses.STPost(
+                addedTime = post.addedTime,
+                postText = post.postText,
+                byUser = authService.getUserByid(post.byUser),
+                id = post.id,
+                status = post.status
+            )
+            return PostServiceClasses.GetPostStatus.Success(stPost)
+        }
+        else {
+            return PostServiceClasses.GetPostStatus.Failed("")
+        }
+    }
+
    suspend fun getOtherUserPosts(userId : BigInteger, itemId: BigInteger?): PostServiceClasses.GetUserPostsStatus {
        return authService.getUserByid(userId)?.let { getUserPosts(it,itemId) } ?: PostServiceClasses.GetUserPostsStatus.Failed("")
    }
